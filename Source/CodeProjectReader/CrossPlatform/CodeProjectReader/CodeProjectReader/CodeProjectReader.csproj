@@ -46,6 +46,7 @@
     <Compile Include="Model\ArticlePackage.cs" />
     <Compile Include="Model\ArticleType.cs" />
     <Compile Include="Model\ConnectionType.cs" />
+    <Compile Include="Model\MailoutUrl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Viewer\ArticleCell.cs" />
     <Compile Include="Viewer\ArticleListPage.cs" />

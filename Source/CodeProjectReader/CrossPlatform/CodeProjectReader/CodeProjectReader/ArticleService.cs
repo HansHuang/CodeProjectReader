@@ -42,10 +42,10 @@ namespace CodeProjectReader
         #endregion
 
         private readonly Random _random = new Random();
-        private const string BaseMailUrl = "http://www.codeproject.com/script/Mailouts/View.aspx?mlid={0}&_z={1}";
-        protected KeyValuePair<DateTime, int> Seed = new KeyValuePair<DateTime, int>(new DateTime(2014, 7, 25), 10974);
-        protected Dictionary<DateTime, KeyValuePair<ArticleType, string>> HtmlDic =
-            new Dictionary<DateTime, KeyValuePair<ArticleType, string>>();
+        private const string BaseMailUrl = "http://www.codeproject.com/script/Mailouts/View.aspx?mlid={0}";
+        private const string AchiveUrl = "http://www.codeproject.com/script/Mailouts/Archive.aspx?mtpid={0}";
+        //protected KeyValuePair<DateTime, int> Seed = new KeyValuePair<DateTime, int>(new DateTime(2014, 7, 25), 10974);
+        protected List<MailoutUrl> MailUrlList = new List<MailoutUrl>();
 
         public ArticleService(IWebHelper webHelper,IConnectivity connectivity)
         {
@@ -74,7 +74,7 @@ namespace CodeProjectReader
 
         private async Task<IList<Article>> GetArticlesForDailyBuilder(DateTime date)
         {
-            var url = TryGetUrl(date);
+            var url = GetMailUrl(date,ArticleType.DailyBuilder);
             if (string.IsNullOrWhiteSpace(url)) return null;
             var html = await WebHelper.GetHtml(url);
             if (string.IsNullOrWhiteSpace(html)) return null;
@@ -128,21 +128,30 @@ namespace CodeProjectReader
             return await Task.Run(() => new List<Article>());
         }
 
-        private string TryGetUrl(DateTime dateTime)
+        private string GetMailUrl(DateTime dateTime,ArticleType type)
         {
-            if (IsWeekend(dateTime)) return string.Empty;
-            var isNewer = dateTime.Date >= Seed.Key.Date;
-            var isPlus = isNewer ? 1 : -1;
-            var bigger = isNewer ? dateTime : Seed.Key;
-            var smaller = isNewer ? Seed.Key : dateTime;
-            var dis = 0;
-            while (bigger.Date >= ((smaller = smaller.AddDays(1)).Date))
+            var urls = MailUrlList.FirstOrDefault(s => s.Type == type);
+            if (urls == null)
             {
-                if (IsWeekend(smaller)) continue;
-                dis++;
+                //TODO: 
+                //archive of The Daily Builds: http://www.codeproject.com/script/Mailouts/Archive.aspx?mtpid=3
+                //archive of The Insiders: http://www.codeproject.com/script/Mailouts/Archive.aspx?mtpid=4
+                //archive of The Mobile: Only in Thursday, InsiderMail.id+1
+                //archive of The WebDev: Only in Tuesday, InsiderMail.id+1
             }
-            var id = Seed.Value + (dis*isPlus);
-            return string.Format(BaseMailUrl, id, GetRandomStr());
+            //if (IsWeekend(dateTime)) return string.Empty;
+            //var isNewer = dateTime.Date >= Seed.Key.Date;
+            //var isPlus = isNewer ? 1 : -1;
+            //var bigger = isNewer ? dateTime : Seed.Key;
+            //var smaller = isNewer ? Seed.Key : dateTime;
+            //var dis = 0;
+            //while (bigger.Date >= ((smaller = smaller.AddDays(1)).Date))
+            //{
+            //    if (IsWeekend(smaller)) continue;
+            //    dis++;
+            //}
+            //var id = Seed.Value + (dis*isPlus);
+            return string.Format(BaseMailUrl, 10974);
         }
 
         private bool IsWeekend(DateTime date)
