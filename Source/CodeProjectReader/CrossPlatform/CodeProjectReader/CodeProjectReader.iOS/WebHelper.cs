@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Text;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeProjectReader.Droid
+namespace CodeProjectReader.iOS
 {
     internal class WebHelper:IWebHelper
     {

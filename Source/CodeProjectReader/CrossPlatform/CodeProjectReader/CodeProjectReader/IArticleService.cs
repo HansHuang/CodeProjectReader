@@ -12,7 +12,8 @@ namespace CodeProjectReader
     public interface IArticleService:INotifyPropertyChanged
     {
         IWebHelper WebHelper { get; }
+        IConnectivity Connectivity { get; }
         ObservableCollection<ArticlePackage> ItemSource { get; }
-        Task<IEnumerable<Article>> GetArticles(DateTime dateTime, ArticleType type);
+        Task<IList<Article>> GetArticles(DateTime date, ArticleType type);
     }
 }

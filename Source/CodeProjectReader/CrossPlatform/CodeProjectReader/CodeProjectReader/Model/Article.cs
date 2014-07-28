@@ -22,6 +22,17 @@ namespace CodeProjectReader.Model
         public string Url { get; set; }
         public string Category { get; set; }
 
+        /// <summary>
+        /// this only to mark the date of follow article
+        /// when set this property, no need to other
+        /// </summary>
+        public DateTime Date { get; set; }
+
+        public string DateString
+        {
+            get { return Date.ToString("M"); }
+        }
+
         public string FullTitle
         {
             get { return string.Format("{0} - {1}", Title, Author); }
@@ -29,8 +40,9 @@ namespace CodeProjectReader.Model
 
         public Article() { }
 
-        public Article(string category)
+        public Article(DateTime date,string category)
         {
+            Date = date;
             Category = category;
         }
     }

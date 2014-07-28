@@ -9,12 +9,11 @@ using Xamarin.Forms;
 
 namespace CodeProjectReader.Helper
 {
-    internal class InverseCollectionToBoolConverter:IValueConverter
+    internal class NullToBoolConverter:IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var collection = value as ICollection;
-            return collection == null || collection.Count == 0;
+            return value != null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

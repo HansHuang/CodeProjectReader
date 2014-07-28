@@ -94,7 +94,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Connectivity.cs" />
     <Compile Include="Helper\HttpClient.cs" />
+    <Compile Include="ThemeManager.cs" />
     <Compile Include="WebHelper.cs" />
     <Compile Include="LocalizedStrings.cs" />
     <Compile Include="MainPage.xaml.cs">

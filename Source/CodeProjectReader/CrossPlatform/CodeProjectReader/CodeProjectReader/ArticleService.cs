@@ -25,6 +25,7 @@ namespace CodeProjectReader
         #endregion
 
         public IWebHelper WebHelper { get; private set; }
+        public IConnectivity Connectivity { get; private set; }
 
         #region NotifyProperty ArticleList
         private ObservableCollection<ArticlePackage> _itemSource;
@@ -41,18 +42,40 @@ namespace CodeProjectReader
         #endregion
 
         private readonly Random _random = new Random();
+        private const string BaseMailUrl = "http://www.codeproject.com/script/Mailouts/View.aspx?mlid={0}&_z={1}";
+        protected KeyValuePair<DateTime, int> Seed = new KeyValuePair<DateTime, int>(new DateTime(2014, 7, 25), 10974);
+        protected Dictionary<DateTime, KeyValuePair<ArticleType, string>> HtmlDic =
+            new Dictionary<DateTime, KeyValuePair<ArticleType, string>>();
 
-        public ArticleService(IWebHelper webHelper)
+        public ArticleService(IWebHelper webHelper,IConnectivity connectivity)
         {
             WebHelper = webHelper;
+            Connectivity = connectivity;
             ItemSource = new ObservableCollection<ArticlePackage>();
             for (var i = 1; i < 5; i++)
                 ItemSource.Add(new ArticlePackage((ArticleType) i));
         }
 
-        public async Task<IEnumerable<Article>> GetArticles(DateTime dateTime, ArticleType type)
+        public async Task<IList<Article>> GetArticles(DateTime date, ArticleType type)
         {
-            var url = await GetUrl(dateTime, type);
+            switch (type)
+            {
+                case ArticleType.DailyBuilder:
+                    return await GetArticlesForDailyBuilder(date);
+                case ArticleType.Insider:
+                    return await GetArticlesForInsider(date);
+                case ArticleType.Mobile:
+                    return await GetArticlesForMobile(date);
+                case ArticleType.WebDev:
+                    return await GetArticlesForWebDev(date);
+            }
+            return null;
+        }
+
+        private async Task<IList<Article>> GetArticlesForDailyBuilder(DateTime date)
+        {
+            var url = TryGetUrl(date);
+            if (string.IsNullOrWhiteSpace(url)) return null;
             var html = await WebHelper.GetHtml(url);
             if (string.IsNullOrWhiteSpace(html)) return null;
             //Bulid html string to DOM
@@ -67,7 +90,7 @@ namespace CodeProjectReader
             var list = new List<Article>();
             foreach (var category in h4List)
             {
-                var article = new Article(category.InnerText);
+                var article = new Article(date, category.InnerText);
                 var ul = category.NextSibling;
                 var liList = ul.ChildNodes.Where(c => c.Name == "li");
                 //Read the content form li node
@@ -87,15 +110,44 @@ namespace CodeProjectReader
                 }
                 list.Add(article);
             }
-
             return list;
         }
 
-        private async Task<string> GetUrl(DateTime dateTime, ArticleType type)
+        private async Task<IList<Article>> GetArticlesForInsider(DateTime date)
         {
-            await Task.Delay(1);
-            //TODO
-            return "http://www.codeproject.com/script/Mailouts/View.aspx?mlid=10964&_z=" + GetRandomStr();
+            return await Task.Run(() => new List<Article>());
+        }
+
+        private async Task<IList<Article>> GetArticlesForMobile(DateTime date)
+        {
+            return await Task.Run(() => new List<Article>());
+        }
+
+        private async Task<IList<Article>> GetArticlesForWebDev(DateTime date)
+        {
+            return await Task.Run(() => new List<Article>());
+        }
+
+        private string TryGetUrl(DateTime dateTime)
+        {
+            if (IsWeekend(dateTime)) return string.Empty;
+            var isNewer = dateTime.Date >= Seed.Key.Date;
+            var isPlus = isNewer ? 1 : -1;
+            var bigger = isNewer ? dateTime : Seed.Key;
+            var smaller = isNewer ? Seed.Key : dateTime;
+            var dis = 0;
+            while (bigger.Date >= ((smaller = smaller.AddDays(1)).Date))
+            {
+                if (IsWeekend(smaller)) continue;
+                dis++;
+            }
+            var id = Seed.Value + (dis*isPlus);
+            return string.Format(BaseMailUrl, id, GetRandomStr());
+        }
+
+        private bool IsWeekend(DateTime date)
+        {
+            return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
         }
 
         private string GetRandomStr()
@@ -112,5 +164,9 @@ namespace CodeProjectReader
             return nodeList;
         }
 
+
+
+
+        
     }
 }

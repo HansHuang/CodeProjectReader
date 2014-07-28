@@ -29,9 +29,12 @@ namespace CodeProjectReader.iOS
         {
             Forms.Init();
 
-            window = new UIWindow(UIScreen.MainScreen.Bounds);
+            var svc = new ArticleService(new WebHelper(),new Connectivity());
 
-            window.RootViewController = App.GetMainPage().CreateViewController();
+            window = new UIWindow(UIScreen.MainScreen.Bounds)
+            {
+                RootViewController = App.GetMainPage(svc).CreateViewController()
+            };
 
             window.MakeKeyAndVisible();
 

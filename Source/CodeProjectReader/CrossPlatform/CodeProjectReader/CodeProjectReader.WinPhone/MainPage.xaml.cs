@@ -4,10 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-
 using Xamarin.Forms;
 
 
@@ -18,10 +18,22 @@ namespace CodeProjectReader.WinPhone
         public MainPage()
         {
             InitializeComponent();
-
+            
             Forms.Init();
-            var svc = new ArticleService(new WebHelper());
+            
+            var svc = new ArticleService(new WebHelper(),new Connectivity());
             Content = CodeProjectReader.App.GetMainPage(svc).ConvertPageToUIElement(this);
+
+            //Note: Hans comment codes from 643-650
+            //I need costomize the color of systemtray
+            ThemeManager.ToLightTheme();
+            var color = new System.Windows.Media.Color() {R = 225, G = 197, B = 158, A = 255};
+            SystemTray.SetBackgroundColor(this, Colors.Black);
+            SystemTray.SetForegroundColor(this, color);
+
+            //var canver = (Canvas) Content;
+            //var c1 = (Pivot)canver.Children[0];
+            //var page = (Xamarin.Forms.Page) c1.Items[0];
         }
     }
 }

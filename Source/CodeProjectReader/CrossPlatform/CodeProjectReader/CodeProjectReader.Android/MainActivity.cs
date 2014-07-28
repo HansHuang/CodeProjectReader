@@ -19,7 +19,7 @@ namespace CodeProjectReader.Droid
             base.OnCreate(bundle);
 
             Xamarin.Forms.Forms.Init(this, bundle);
-            var svc = new ArticleService(new WebHelper());
+            var svc = new ArticleService(new WebHelper(),new Connectivity());
             SetPage(App.GetMainPage(svc));
         }
     }

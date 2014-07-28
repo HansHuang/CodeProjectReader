@@ -22,11 +22,13 @@ namespace CodeProjectReader.Viewer
         public ArticleListPage()
         {
             this.SetBinding(TitleProperty, "Name");
-            //NavigationPage.SetHasNavigationBar(this, true);
-            
+            //NavigationPage.SetHasNavigationBar(this, false);
             var busyIndicator = GetBusyIndicator();
             var listViewer = GetListViewer();
-            Content = new StackLayout {Children = {busyIndicator, listViewer}};
+            Content = new StackLayout
+            {
+                Children = {busyIndicator, listViewer}
+            };
         }
 
         private StackLayout GetBusyIndicator()
