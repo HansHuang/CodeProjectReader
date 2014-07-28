@@ -17,9 +17,10 @@ namespace CodeProjectReader.Model
     {
         //Not support desc ?
         //[Description("Insider")]
-        Insider=1,
-        DailyBuilder,
+        DailyBuilder=1,
         WebDev,
-        Mobile
+        Mobile,
+        //Insider,
+        //archive of The Insiders: http://www.codeproject.com/script/Mailouts/Archive.aspx?mtpid=4
     }
 }

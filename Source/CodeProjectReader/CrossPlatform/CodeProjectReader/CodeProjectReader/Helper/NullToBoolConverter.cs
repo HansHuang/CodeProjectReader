@@ -9,6 +9,14 @@ using Xamarin.Forms;
 
 namespace CodeProjectReader.Helper
 {
+    /// <summary>
+    /// Class: InverseNullToBoolConverter
+    /// Author: Hans Huang @ Jungo Studio
+    /// Create On: July 26th, 2014
+    /// Description: The converter for bool form null
+    ///              NotNull: True; Null: False;
+    /// Version: 0.1
+    /// </summary> 
     internal class NullToBoolConverter:IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

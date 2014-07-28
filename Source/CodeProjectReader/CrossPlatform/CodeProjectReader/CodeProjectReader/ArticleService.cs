@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,8 +11,17 @@ using HtmlAgilityPack;
 
 namespace CodeProjectReader
 {
+    /// <summary>
+    /// Class: ArticleService
+    /// Author: Hans Huang @ Jungo Studio
+    /// Create On: July 26th, 2014
+    /// Description: The implementaton for IArticleService
+    /// Version: 0.1
+    /// </summary> 
     public class ArticleService:IArticleService
     {
+        #region Properties implementation for IArticleService
+
         #region INotifyPropertyChanged values
         public event PropertyChangedEventHandler PropertyChanged;
         protected void RaisePropertyChanged(string propertyName)
@@ -24,73 +34,90 @@ namespace CodeProjectReader
         }
         #endregion
 
-        public IWebHelper WebHelper { get; private set; }
-        public IConnectivity Connectivity { get; private set; }
-
         #region NotifyProperty ArticleList
-        private ObservableCollection<ArticlePackage> _itemSource;
-        public ObservableCollection<ArticlePackage> ItemSource
+        private ObservableCollection<ArticlePackage> _articlePages;
+        public ObservableCollection<ArticlePackage> ArticlePages
         {
-            get { return _itemSource ?? (_itemSource = new ObservableCollection<ArticlePackage>()); }
+            get { return _articlePages ?? (_articlePages = new ObservableCollection<ArticlePackage>()); }
             set
             {
-                if (_itemSource != null && _itemSource.Equals(value)) return;
-                _itemSource = value;
-                RaisePropertyChanged("ItemSource");
+                if (_articlePages != null && _articlePages.Equals(value)) return;
+                _articlePages = value;
+                RaisePropertyChanged("ArticlePages");
             }
         }
         #endregion
 
-        private readonly Random _random = new Random();
-        private const string BaseMailUrl = "http://www.codeproject.com/script/Mailouts/View.aspx?mlid={0}";
-        private const string AchiveUrl = "http://www.codeproject.com/script/Mailouts/Archive.aspx?mtpid={0}";
-        //protected KeyValuePair<DateTime, int> Seed = new KeyValuePair<DateTime, int>(new DateTime(2014, 7, 25), 10974);
-        protected List<MailoutUrl> MailUrlList = new List<MailoutUrl>();
+        public IWebHelper WebHelper { get; private set; }
+        public IConnectivity Connectivity { get; private set; } 
+        #endregion
 
-        public ArticleService(IWebHelper webHelper,IConnectivity connectivity)
+        #region Non-public fields
+        private readonly Random _random = new Random();
+        private const string DomainUrl = "http://www.codeproject.com";
+        private const string PrefixMailUrl = DomainUrl + "/script/Mailouts/View.aspx?mlid=";
+        private const string BaseAchiveUrl = DomainUrl + "/script/Mailouts/Archive.aspx?mtpid={0}";
+        protected Dictionary<ArticleType, Dictionary<DateTime, string>> ArchiveMailDic =
+            new Dictionary<ArticleType, Dictionary<DateTime, string>>();
+        protected Dictionary<ArticleType, DateTime> LoadedPointer = new Dictionary<ArticleType, DateTime>();
+        private readonly CultureInfo _websiteCulture = new CultureInfo("en-ca"); 
+        #endregion
+
+        #region Construaction
+        public ArticleService(IWebHelper webHelper, IConnectivity connectivity)
         {
             WebHelper = webHelper;
             Connectivity = connectivity;
-            ItemSource = new ObservableCollection<ArticlePackage>();
-            for (var i = 1; i < 5; i++)
-                ItemSource.Add(new ArticlePackage((ArticleType) i));
-        }
-
-        public async Task<IList<Article>> GetArticles(DateTime date, ArticleType type)
-        {
-            switch (type)
+            ArticlePages = new ObservableCollection<ArticlePackage>();
+            for (var i = 1; i < 4; i++)
             {
-                case ArticleType.DailyBuilder:
-                    return await GetArticlesForDailyBuilder(date);
-                case ArticleType.Insider:
-                    return await GetArticlesForInsider(date);
-                case ArticleType.Mobile:
-                    return await GetArticlesForMobile(date);
-                case ArticleType.WebDev:
-                    return await GetArticlesForWebDev(date);
+                ArticlePages.Add(new ArticlePackage((ArticleType)i));
+                ArchiveMailDic.Add((ArticleType)i, new Dictionary<DateTime, string>());
+                LoadedPointer.Add((ArticleType)i, DateTime.Now.Date.AddYears(1));
             }
-            return null;
+        }
+        #endregion
+
+        #region Methods Implementation for IArticleService
+
+        public async Task<Dictionary<ArticleType, IList<Article>>> InitialArticles()
+        {
+            //Make sure Daily Builder load first
+            var dailyBuilderList = await GetArticles(ArticleType.DailyBuilder);
+            var webDevList = await GetArticles(ArticleType.WebDev);
+            var mobileLIst = await GetArticles(ArticleType.Mobile);
+
+            return new Dictionary<ArticleType, IList<Article>>
+            {
+                {ArticleType.DailyBuilder, dailyBuilderList},
+                {ArticleType.WebDev, webDevList},
+                {ArticleType.Mobile, mobileLIst}
+            };
         }
 
-        private async Task<IList<Article>> GetArticlesForDailyBuilder(DateTime date)
+        #endregion
+
+        #region Private processor
+
+        private async Task<IList<Article>> GetArticles(ArticleType type)
         {
-            var url = GetMailUrl(date,ArticleType.DailyBuilder);
-            if (string.IsNullOrWhiteSpace(url)) return null;
-            var html = await WebHelper.GetHtml(url);
-            if (string.IsNullOrWhiteSpace(html)) return null;
+            var list = new List<Article>();
+            var urlDic = await GetMailUrl(type);
+            if (string.IsNullOrWhiteSpace(urlDic.Value)) return list;
+            var html = await WebHelper.GetHtml(urlDic.Value);
+            if (string.IsNullOrWhiteSpace(html)) return list;
             //Bulid html string to DOM
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
             var mainContent = doc.GetElementById("ctl00_MC_HtmlContent");
-            if (mainContent == null) return null;
+            if (mainContent == null) return list;
             doc.LoadHtml(mainContent.InnerHtml);
             //Get usefull content
             var h4List = GetNodesByName(doc.DocumentNode, "h4");
-            if (h4List.Count == 0) return null;
-            var list = new List<Article>();
+            if (h4List.Count == 0) return list;
             foreach (var category in h4List)
             {
-                var article = new Article(date, category.InnerText);
+                var article = new Article(urlDic.Key, category.InnerText);
                 var ul = category.NextSibling;
                 var liList = ul.ChildNodes.Where(c => c.Name == "li");
                 //Read the content form li node
@@ -98,7 +125,7 @@ namespace CodeProjectReader
                 {
                     var link = li.ChildNodes.FirstOrDefault(c => c.Name == "a");
                     if (link == null) continue;
-                    article.Url = link.GetAttributeValue("href", "").Trim() + "_z=" + GetRandomStr();
+                    article.Url = link.GetAttributeValue("href", "").Trim();
                     article.Id = article.Url.Split(new[] { '=', '&' })[1];
                     article.Title = link.InnerText.Trim();
                     var author = link.NextSibling;
@@ -113,55 +140,72 @@ namespace CodeProjectReader
             return list;
         }
 
-        private async Task<IList<Article>> GetArticlesForInsider(DateTime date)
+        private async Task<KeyValuePair<DateTime, string>> GetMailUrl(ArticleType type)
         {
-            return await Task.Run(() => new List<Article>());
+            var empty = new KeyValuePair<DateTime, string>();
+            if (ArchiveMailDic[type].Count < 1) await LoadArchive(type);
+            //if still empty, something wrong...
+            if (ArchiveMailDic[type].Count < 1) return empty;
+            var dateUrl = ArchiveMailDic[type].FirstOrDefault(s => s.Key < LoadedPointer[type]);
+            if (string.IsNullOrWhiteSpace(dateUrl.Value)) return empty;
+            LoadedPointer[type] = dateUrl.Key;
+            return dateUrl;
         }
 
-        private async Task<IList<Article>> GetArticlesForMobile(DateTime date)
+        private async Task LoadArchive(ArticleType type)
         {
-            return await Task.Run(() => new List<Article>());
-        }
-
-        private async Task<IList<Article>> GetArticlesForWebDev(DateTime date)
-        {
-            return await Task.Run(() => new List<Article>());
-        }
-
-        private string GetMailUrl(DateTime dateTime,ArticleType type)
-        {
-            var urls = MailUrlList.FirstOrDefault(s => s.Type == type);
-            if (urls == null)
+            var dic = new Dictionary<DateTime, string>();
+            if (type == ArticleType.DailyBuilder)
             {
-                //TODO: 
-                //archive of The Daily Builds: http://www.codeproject.com/script/Mailouts/Archive.aspx?mtpid=3
-                //archive of The Insiders: http://www.codeproject.com/script/Mailouts/Archive.aspx?mtpid=4
-                //archive of The Mobile: Only in Thursday, InsiderMail.id+1
-                //archive of The WebDev: Only in Tuesday, InsiderMail.id+1
+                //Maybe already got by other therad
+                if (ArchiveMailDic[type].Count > 0) return;
+                var archiveUrl = string.Format(BaseAchiveUrl, 3);
+                var html = await WebHelper.GetHtml(archiveUrl);
+                if (string.IsNullOrWhiteSpace(html)) return;
+                try
+                {
+                    var doc = new HtmlDocument();
+                    doc.LoadHtml(html);
+                    var table = GetNodesByName(doc.DocumentNode, "table")
+                        .FirstOrDefault(s => s.GetAttributeValue("class", "") == "Archive");
+                    if (table == null) return;
+                    var items = GetNodesByName(table, "li");
+                    foreach (var item in items)
+                    {
+                        var txtList = item.InnerText.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                        DateTime dt;
+                        if (!DateTime.TryParse(txtList[0], _websiteCulture, DateTimeStyles.AssumeUniversal, out dt))
+                            continue;
+                        var path = GetNodesByName(item, "a")[0].GetAttributeValue("href", "");
+                        if (!string.IsNullOrWhiteSpace(path))
+                            dic.Add(dt.Date, DomainUrl + path);
+                    }
+                }
+                catch
+                {
+                }
             }
-            //if (IsWeekend(dateTime)) return string.Empty;
-            //var isNewer = dateTime.Date >= Seed.Key.Date;
-            //var isPlus = isNewer ? 1 : -1;
-            //var bigger = isNewer ? dateTime : Seed.Key;
-            //var smaller = isNewer ? Seed.Key : dateTime;
-            //var dis = 0;
-            //while (bigger.Date >= ((smaller = smaller.AddDays(1)).Date))
-            //{
-            //    if (IsWeekend(smaller)) continue;
-            //    dis++;
-            //}
-            //var id = Seed.Value + (dis*isPlus);
-            return string.Format(BaseMailUrl, 10974);
-        }
-
-        private bool IsWeekend(DateTime date)
-        {
-            return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
-        }
-
-        private string GetRandomStr()
-        {
-            return _random.Next(100000, 1000000).ToString();
+            else
+            {
+                if (ArchiveMailDic[ArticleType.DailyBuilder].Count < 1) await LoadArchive(ArticleType.DailyBuilder);
+                //The Mobile: Only in Thursday, DailyBuilder.id - 1
+                //The WebDev: Only in Tuesday, DailyBuilder.id - 1
+                var day = type == ArticleType.Mobile ? DayOfWeek.Thursday : DayOfWeek.Tuesday;
+                var dayList = ArchiveMailDic[ArticleType.DailyBuilder].Where(s => s.Key.DayOfWeek == day).ToList();
+                foreach (var pair in dayList)
+                {
+                    try
+                    {
+                        var idStr = pair.Value.Replace(PrefixMailUrl, "").Split(new[] { '&' })[0];
+                        var id = int.Parse(idStr) - 1;
+                        dic.Add(pair.Key.Date, PrefixMailUrl + id);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            ArchiveMailDic[type] = dic;
         }
 
         private static List<HtmlNode> GetNodesByName(HtmlNode node, string name)
@@ -173,9 +217,6 @@ namespace CodeProjectReader
             return nodeList;
         }
 
-
-
-
-        
+        #endregion
     }
 }

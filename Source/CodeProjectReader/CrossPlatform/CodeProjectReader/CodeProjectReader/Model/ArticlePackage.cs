@@ -9,6 +9,13 @@ using System.Threading.Tasks;
 
 namespace CodeProjectReader.Model
 {
+    /// <summary>
+    /// Class: ArticlePackage
+    /// Author: Hans Huang @ Jungo Studio
+    /// Create On: July 26th, 2014
+    /// Description: The view model for article list page
+    /// Version: 0.1
+    /// </summary> 
     public class ArticlePackage : INotifyPropertyChanged
     {
         #region INotifyPropertyChanged values
@@ -94,8 +101,8 @@ namespace CodeProjectReader.Model
             {
                 case ArticleType.DailyBuilder:
                     return "Daily Build";
-                case ArticleType.Insider:
-                    return "Insider";
+                //case ArticleType.Insider:
+                //    return "Insider";
                 case ArticleType.Mobile:
                     return "Mobile";
                 case ArticleType.WebDev:

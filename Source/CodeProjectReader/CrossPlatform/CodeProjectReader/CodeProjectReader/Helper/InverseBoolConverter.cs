@@ -7,6 +7,13 @@ using Xamarin.Forms;
 
 namespace CodeProjectReader.Helper
 {
+    /// <summary>
+    /// Class: InverseBoolConverter
+    /// Author: Hans Huang @ Jungo Studio
+    /// Create On: July 26th, 2014
+    /// Description: The converter for inverse bool 
+    /// Version: 0.1
+    /// </summary> 
     class InverseBoolConverter:IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

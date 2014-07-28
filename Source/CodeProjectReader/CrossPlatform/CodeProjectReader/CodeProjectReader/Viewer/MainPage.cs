@@ -8,6 +8,13 @@ using Xamarin.Forms;
 
 namespace CodeProjectReader.Viewer
 {
+    /// <summary>
+    /// Class: MainPage
+    /// Author: Hans Huang @ Jungo Studio
+    /// Create On: July 26th, 2014
+    /// Description: The main page viewer for app
+    /// Version: 0.1
+    /// </summary> 
     internal class MainPage : TabbedPage
     {
         protected IArticleService ArticleService;
@@ -19,43 +26,32 @@ namespace CodeProjectReader.Viewer
             //BackgroundColor = Color.Red;
             NavigationPage.SetHasNavigationBar(this, true);
             ItemTemplate = new DataTemplate(typeof (ArticleListPage));
-            ItemsSource = ArticleService.ItemSource;
-            foreach (var page in Children)
-                page.Appearing += PageAppearing;
+            ItemsSource = ArticleService.ArticlePages;
+            Appearing += PageAppearing;
         }
-
-        private readonly Dictionary<Page, int> _failded=new Dictionary<Page, int>();
 
         private async void PageAppearing(object sender, EventArgs e)
         {
-            var page = sender as Page;
-            if (page == null) return;
             if (!ArticleService.Connectivity.IsConnected)
+            {
                 //TODO: No internet
                 return;
-            if (!_failded.ContainsKey(page)) _failded.Add(page, 0);
-            if (_failded[page] >= 5)
+            }
+            var mainPage = sender as TabbedPage;
+            if (mainPage == null) return;
+            //Set the status of ArticlePackage to buffering
+            foreach (ArticlePackage pkg in mainPage.ItemsSource) pkg.IsBuffering = true;
+            //Initial all the article list for each type
+            var articleDic = await ArticleService.InitialArticles();
+
+            foreach (ArticlePackage pkg in mainPage.ItemsSource)
             {
-                //TODO: Filded to get articles
-                return;
+                pkg.IsBuffering = false;
+                if (!articleDic.ContainsKey(pkg.Type)) continue;
+                foreach (var article in articleDic[pkg.Type])
+                    pkg.ArticleList.Add(article);
             }
 
-            var articlePkg = page.BindingContext as ArticlePackage;
-            if (articlePkg == null) return;
-            articlePkg.IsBuffering = true;
-            var date = DateTime.Now.AddDays(-1*_failded[page]);
-            var articleList = await ArticleService.GetArticles(date, articlePkg.Type);
-            articlePkg.IsBuffering = false;
-            if (articleList == null || articleList.Count == 0)
-            {
-                _failded[page]++;
-                PageAppearing(sender, e);
-                return;
-            }
-            foreach (var article in articleList)
-            {
-                articlePkg.ArticleList.Add(article);
-            }
         }
 
 
