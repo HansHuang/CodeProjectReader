@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -41,21 +42,6 @@ namespace WpfApp {
 
     #endregion
 
-    #region ItemScource (INotifyPropertyChanged Property)
-
-    private ObservableCollection<Article> _itemScource;
-
-    public ObservableCollection<Article> ItemScource {
-      get { return _itemScource; }
-      set {
-        if (_itemScource != null && _itemScource.Equals(value)) return;
-        _itemScource = value;
-        RaisePropertyChanged("ItemScource");
-      }
-    }
-
-    #endregion
-
     #region ShowDetail (INotifyPropertyChanged Property)
 
     private bool _showDetail;
@@ -69,6 +55,20 @@ namespace WpfApp {
       }
     }
 
+    #endregion
+
+    #region ArticleViewers (INotifyPropertyChanged Property)
+
+    private ObservableCollection<ArticlePackage> _articleViewers;
+
+    public ObservableCollection<ArticlePackage> ArticleViewers {
+      get { return _articleViewers ?? (_articleViewers=new ObservableCollection<ArticlePackage>()); }
+      set {
+        if (_articleViewers != null && _articleViewers.Equals(value)) return;
+        _articleViewers = value;
+        RaisePropertyChanged("ArticleViewers");
+      }
+    }
     #endregion
 
     #region RelayCommand ReadDetailCmd
@@ -147,23 +147,47 @@ namespace WpfApp {
 
     #endregion
 
-
     protected string HtmlTemplate = "";
+    private const string DomainUrl = "http://www.codeproject.com";
+    private const string PrefixMailUrl = DomainUrl + "/script/Mailouts/View.aspx?mlid=";
+    private const string BaseAchiveUrl = DomainUrl + "/script/Mailouts/Archive.aspx?mtpid={0}";
+    private readonly object _dailyBuildLocker = new object();
+    private readonly object _insiderLocker = new object();
 
-    private Random _random = new Random();
+    protected Dictionary<ArticleType, Dictionary<DateTime, string>> ArchiveMailDic =
+      new Dictionary<ArticleType, Dictionary<DateTime, string>>();
+
+    protected Dictionary<ArticleType, DateTime> LoadedPointer = new Dictionary<ArticleType, DateTime>();
+
+    private WebClient _webClient = new WebClient {Encoding = Encoding.UTF8};
+    private CultureInfo _websiteCulture = new System.Globalization.CultureInfo("en-ca", true);
+
     public MainWindow() {
       InitializeComponent();
-      ItemScource = new ObservableCollection<Article>();
-      LoadDailyBuild();
+
+      //Ignore the Insider
+      //TODO: Put the Insider to the last postion
+      for (var i = 2; i < 5; i++) {
+        ArchiveMailDic.Add((ArticleType) i, new Dictionary<DateTime, string>());
+        ArticleViewers.Add(new ArticlePackage((ArticleType) i));
+        LoadedPointer.Add((ArticleType) i, DateTime.Now.Date.AddYears(1));
+      }
+
+      LoadArticle(ArticleType.DailyBuilder);
+      LoadArticle(ArticleType.Mobile);
+      LoadArticle(ArticleType.WebDev);
     }
 
     public void OpenBorwser(string url) {
       MessageBox.Show(url);
     }
 
-    private void LoadDailyBuild() {
-      var path = "http://www.codeproject.com/script/Mailouts/View.aspx?mlid=10964&_z=" + GetRandomStr();
+    private void LoadArticle(ArticleType type)
+    {
+      var path = GetMailUrl(type);
+      if (string.IsNullOrWhiteSpace(path.Value)) return;
       var wc = new WebClient { Encoding = Encoding.UTF8 };
+      var itemSource = ArticleViewers.First(s => s.Type == type).ArticleList;
       wc.DownloadStringCompleted += (s, e) =>
       {
         var doc = new HtmlDocument();
@@ -178,7 +202,7 @@ namespace WpfApp {
           foreach (var li in liList) {
             var link = li.ChildNodes.FirstOrDefault(c => c.Name == "a");
             if (link == null) continue;
-            article.Url = link.GetAttributeValue("href", "").Trim() + "_z=" + GetRandomStr();
+            article.Url = link.GetAttributeValue("href", "").Trim();
             article.Id = article.Url.Split(new[] {'=', '&'})[1];
             article.Title = link.InnerText.Trim();
             var author = link.NextSibling;
@@ -188,10 +212,10 @@ namespace WpfApp {
             if (desc == null) continue;
             article.Description = desc.InnerText.Trim();
           }
-          ItemScource.Add(article);
+          itemSource.Add(article);
         }
 
-        Console.WriteLine(ItemScource.Count);
+        Console.WriteLine(itemSource.Count);
         
         //doc.LoadHtml(doc.GetElementbyId("ctl00_MC_HtmlContent").InnerHtml);
         //var main = doc.DocumentNode.ChildNodes.FirstOrDefault(c => c.Name == "html");
@@ -202,12 +226,78 @@ namespace WpfApp {
 
 
       };
-      wc.DownloadStringAsync(new Uri(path));
+      wc.DownloadStringAsync(new Uri(path.Value));
 
     }
 
-    private string GetRandomStr() {
-      return _random.Next(100000, 1000000).ToString();
+    private KeyValuePair<DateTime,string> GetMailUrl(ArticleType type) {
+      if (ArchiveMailDic[type].Count < 1) LoadArchive(type);
+      var empty = new KeyValuePair<DateTime, string>();
+      //if still empty, something wrong...
+      if (ArchiveMailDic[type].Count < 1) return empty;
+      var dateUrl = ArchiveMailDic[type].FirstOrDefault(s => s.Key < LoadedPointer[type]);
+      if (string.IsNullOrWhiteSpace(dateUrl.Value)) return empty;
+      LoadedPointer[type] = dateUrl.Key;
+      return dateUrl;
+    }
+
+    private void LoadArchive(ArticleType type) {
+      var dic = new Dictionary<DateTime, string>();
+      if (type == ArticleType.DailyBuilder || type == ArticleType.Insider) {
+        var isInsider = type == ArticleType.Insider;
+        lock (isInsider ? _insiderLocker : _dailyBuildLocker) {
+          //Maybe already got by other therad
+          if (ArchiveMailDic[type].Count > 0) return;
+          var archiveUrl = string.Format(BaseAchiveUrl, isInsider ? 4 : 3);
+
+          try {
+            var html = _webClient.DownloadString(archiveUrl);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+            var table = GetNodesByName(doc.DocumentNode, "table")
+              .FirstOrDefault(s => s.GetAttributeValue("class", "") == "Archive");
+            if (table == null) return;
+            var items = GetNodesByName(table, "li");
+            foreach (var item in items) {
+              var txtList = item.InnerText.Split(new[] {'-'}, StringSplitOptions.RemoveEmptyEntries);
+              DateTime dt;
+              if (! DateTime.TryParse(txtList[0], _websiteCulture, DateTimeStyles.AssumeUniversal, out dt)) continue;
+              var path = GetNodesByName(item, "a")[0].GetAttributeValue("href", "");
+              if (!string.IsNullOrWhiteSpace(path))
+                dic.Add(dt.Date, DomainUrl + path);
+            }
+          }
+          catch {
+          }
+        }
+      }
+      else {
+        if (ArchiveMailDic[ArticleType.DailyBuilder].Count < 1) LoadArchive(ArticleType.DailyBuilder);
+        //The Mobile: Only in Thursday, DailyBuilder.id - 1
+        //The WebDev: Only in Tuesday, DailyBuilder.id - 1
+        var day = type == ArticleType.Mobile ? DayOfWeek.Thursday : DayOfWeek.Tuesday;
+        var dayList = ArchiveMailDic[ArticleType.DailyBuilder].Where(s => s.Key.DayOfWeek == day).ToList();
+        foreach (var pair in dayList) {
+          try {
+            var idStr = pair.Value.Replace(PrefixMailUrl, "").Split(new[] {'&'})[0];
+            var id = int.Parse(idStr) - 1;
+            dic.Add(pair.Key.Date, PrefixMailUrl + id);
+          }
+          catch {
+            continue;
+          }
+        }
+      }
+      ArchiveMailDic[type] = dic;
+    }
+
+    private static List<HtmlNode> GetNodesByName(HtmlNode node, string name)
+    {
+      var nodeList = new List<HtmlNode>();
+      if (node.Name == name) nodeList.Add(node);
+      foreach (var nd in node.ChildNodes)
+        nodeList.AddRange(GetNodesByName(nd, name));
+      return nodeList;
     }
 
   }
@@ -230,21 +320,118 @@ namespace WpfApp {
     }
   }
 
-  public class MyWebClient : WebClient
+  public enum ArticleType
   {
-    Uri _responseUri;
+    //Not support desc ?
+    //[Description("Insider")]
+    Insider = 1,
+    DailyBuilder,
+    WebDev,
+    Mobile
+  }
 
-    public Uri ResponseUri
+  public class ArticlePackage : INotifyPropertyChanged
+  {
+    #region INotifyPropertyChanged values
+    public event PropertyChangedEventHandler PropertyChanged;
+    protected void RaisePropertyChanged(string propertyName)
     {
-      get { return _responseUri; }
+      var handler = PropertyChanged;
+      if (handler != null)
+      {
+        handler(this, new PropertyChangedEventArgs(propertyName));
+      }
+    }
+    #endregion
+
+    #region NotifyProperty IsBuffering
+    private bool _isBuffering;
+    public bool IsBuffering
+    {
+      get { return _isBuffering; }
+      set
+      {
+        if (_isBuffering.Equals(value)) return;
+        _isBuffering = value;
+        RaisePropertyChanged("IsBuffering");
+      }
     }
 
-    protected override WebResponse GetWebResponse(WebRequest request)
+    #endregion
+
+    #region NotifyProperty Name
+    private string _name;
+    public string Name
     {
-      var response = base.GetWebResponse(request);
-      _responseUri = response.ResponseUri;
-      return response;
+      get { return _name; }
+      set
+      {
+        if (_name != null && _name.Equals(value)) return;
+        _name = value;
+        RaisePropertyChanged("Name");
+      }
     }
+    #endregion
+
+    #region NotifyProperty Type
+    private ArticleType _type;
+    public ArticleType Type
+    {
+      get { return _type; }
+      set
+      {
+        if (_type.Equals(value)) return;
+        _type = value;
+        RaisePropertyChanged("Type");
+      }
+    }
+    #endregion
+
+    #region NotifyProperty ArticleList
+    private ObservableCollection<Article> _articleList;
+    public ObservableCollection<Article> ArticleList
+    {
+      get { return _articleList ?? (_articleList = new ObservableCollection<Article>()); }
+      set
+      {
+        if (_articleList != null && _articleList.Equals(value)) return;
+        _articleList = value;
+        RaisePropertyChanged("ArticleList");
+      }
+    }
+    #endregion
+
+    public ArticlePackage() { }
+
+    public ArticlePackage(ArticleType type)
+    {
+      Type = type;
+      Name = GetName(type);
+    }
+
+    private static string GetName(ArticleType type)
+    {
+      switch (type)
+      {
+        case ArticleType.DailyBuilder:
+          return "Daily Build";
+        case ArticleType.Insider:
+          return "Insider";
+        case ArticleType.Mobile:
+          return "Mobile";
+        case ArticleType.WebDev:
+          return "Web Dev";
+      }
+      return string.Empty;
+    }
+
+  }
+
+  public class MailoutUrl
+  {
+    public ArticleType Type { get; set; }
+
+    public Dictionary<DateTime, string> UrlDic { get; set; }
   }
 
 

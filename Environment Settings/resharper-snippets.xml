@@ -1,0 +1,124 @@
+<TemplatesExport family="Live Templates">
+  <Template uid="e84c93ce-c68e-4f28-a2f0-c86d1eabcf89" shortcut="event" description="create event" text="#region $EventName$&#xD;&#xA;public delegate $TYPE$ $EventName$Handler($Parameters$);&#xD;&#xA;public event $EventName$Handler $EventName$;&#xD;&#xA;&#xD;&#xA;protected $TYPE$ On$EventName$($Parameters$) {&#xD;&#xA;  if($EventName$ != null) {&#xD;&#xA;    $EventName$($TODO$);&#xD;&#xA;  }&#xD;&#xA;}&#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="TypeMember" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="TYPE" expression="" initialRange="0" />
+      <Variable name="EventName" expression="" initialRange="0" />
+      <Variable name="Parameters" expression="" initialRange="0" />
+      <Variable name="TODO" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+  <Template uid="68caf4c9-2fcd-4b62-9777-fcee37ea00c9" shortcut="eventvalue" description="Creates a property that trows an event when changed" text="#region $PropertyName$ (With event when changed)&#xD;&#xA;&#xD;&#xA;private $VALUETYPE$ _m$PropertyName$;&#xD;&#xA;public $VALUETYPE$ $PropertyName$ {&#xD;&#xA;  get { return _m$PropertyName$; }&#xD;&#xA;  set {&#xD;&#xA;    _m$PropertyName$ = value;&#xD;&#xA;    On$PropertyName$Changed(value);&#xD;&#xA;  }&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;public delegate $TYPE$ $PropertyName$ChangedHandler($VALUETYPE$ $PropertyName$);&#xD;&#xA;public event $PropertyName$ChangedHandler $PropertyName$Changed;&#xD;&#xA;protected $TYPE$ On$PropertyName$Changed($VALUETYPE$ $PropertyName$) {&#xD;&#xA;  if($PropertyName$Changed != null) {&#xD;&#xA;    $PropertyName$Changed($PropertyName$);&#xD;&#xA;  }&#xD;&#xA;}&#xD;&#xA;#endregion" reformat="False" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="VALUETYPE" expression="" initialRange="0" />
+      <Variable name="PropertyName" expression="" initialRange="1" />
+      <Variable name="TYPE" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+  <Template uid="05443fbd-3e95-4b8e-afa5-db8f2d2e96c6" shortcut="notifyo" description="INotifyPropertyChanged RaisePropertyChanged" text="#region INotifyPropertyChanged RaisePropertyChanged&#xD;&#xA;&#xD;&#xA;        public event PropertyChangedEventHandler PropertyChanged;&#xD;&#xA;&#xD;&#xA;				protected void RaisePropertyChanged(string propertyName)&#xD;&#xA;				{&#xD;&#xA;					var handler = PropertyChanged;&#xD;&#xA;					if(handler != null)&#xD;&#xA;					{&#xD;&#xA;						handler(this, new PropertyChangedEventArgs(propertyName));&#xD;&#xA;					}&#xD;&#xA;				}        &#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables />
+    <CustomProperties />
+  </Template>
+  <Template uid="f64f1397-811f-4f1e-8d0a-8ec6cfd9bc5a" shortcut="notifyp" description="INotifyPropertyChanged Property" text="#region $propertyName$ (INotifyPropertyChanged Property)&#xD;&#xA;		private $type$ _$propertyName$;&#xD;&#xA;				&#xD;&#xA;		public $type$ $propertyName$ &#xD;&#xA;		{&#xD;&#xA;			get{ return _$propertyName$;}&#xD;&#xA;			set&#xD;&#xA;			{&#xD;&#xA;		if (_$propertyName$ != null &amp;&amp; _$propertyName$.Equals(value)) return;&#xD;&#xA;		_$propertyName$ = value;&#xD;&#xA;		RaisePropertyChanged(&quot;$propertyName$&quot;);&#xD;&#xA;		&#xD;&#xA;      }&#xD;&#xA;		}&#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="propertyName" expression="" initialRange="0" />
+      <Variable name="type" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+  <Template uid="123a9d48-d2e5-4be2-80ea-ef0c421be4d0" shortcut="relaycmd" description="Relay command" text="#region RelayCommand $Name$Cmd&#xD;&#xA;  private RelayCommand _$Name$Cmd;&#xD;&#xA;  public ICommand $Name$Cmd {&#xD;&#xA;    get {&#xD;&#xA;      if (_$Name$Cmd == null) _$Name$Cmd = new RelayCommand(param =&gt; this.$DoSomething$());&#xD;&#xA;      return _$Name$Cmd;&#xD;&#xA;    }&#xD;&#xA;  }&#xD;&#xA;&#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="Name" expression="" initialRange="0" />
+      <Variable name="DoSomething" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+  <Template uid="e84c93ce-c68e-4f28-a2f0-c86d1eabcf89" shortcut="event" description="create event" text="#region $EventName$&#xD;&#xA;public delegate $TYPE$ $EventName$Handler($Parameters$);&#xD;&#xA;public event $EventName$Handler $EventName$;&#xD;&#xA;&#xD;&#xA;protected $TYPE$ On$EventName$($Parameters$) {&#xD;&#xA;  if($EventName$ != null) {&#xD;&#xA;    $EventName$($TODO$);&#xD;&#xA;  }&#xD;&#xA;}&#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="TypeMember" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="TYPE" expression="" initialRange="0" />
+      <Variable name="EventName" expression="" initialRange="0" />
+      <Variable name="Parameters" expression="" initialRange="0" />
+      <Variable name="TODO" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+  <Template uid="68caf4c9-2fcd-4b62-9777-fcee37ea00c9" shortcut="eventvalue" description="Creates a property that trows an event when changed" text="#region $PropertyName$ (With event when changed)&#xD;&#xA;&#xD;&#xA;private $VALUETYPE$ _m$PropertyName$;&#xD;&#xA;public $VALUETYPE$ $PropertyName$ {&#xD;&#xA;  get { return _m$PropertyName$; }&#xD;&#xA;  set {&#xD;&#xA;    _m$PropertyName$ = value;&#xD;&#xA;    On$PropertyName$Changed(value);&#xD;&#xA;  }&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;public delegate $TYPE$ $PropertyName$ChangedHandler($VALUETYPE$ $PropertyName$);&#xD;&#xA;public event $PropertyName$ChangedHandler $PropertyName$Changed;&#xD;&#xA;protected $TYPE$ On$PropertyName$Changed($VALUETYPE$ $PropertyName$) {&#xD;&#xA;  if($PropertyName$Changed != null) {&#xD;&#xA;    $PropertyName$Changed($PropertyName$);&#xD;&#xA;  }&#xD;&#xA;}&#xD;&#xA;#endregion" reformat="False" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="VALUETYPE" expression="" initialRange="0" />
+      <Variable name="PropertyName" expression="" initialRange="1" />
+      <Variable name="TYPE" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+  <Template uid="05443fbd-3e95-4b8e-afa5-db8f2d2e96c6" shortcut="notifyo" description="INotifyPropertyChanged RaisePropertyChanged" text="#region INotifyPropertyChanged RaisePropertyChanged&#xD;&#xA;&#xD;&#xA;        public event PropertyChangedEventHandler PropertyChanged;&#xD;&#xA;&#xD;&#xA;				protected void RaisePropertyChanged(string propertyName)&#xD;&#xA;				{&#xD;&#xA;					var handler = PropertyChanged;&#xD;&#xA;					if(handler != null)&#xD;&#xA;					{&#xD;&#xA;						handler(this, new PropertyChangedEventArgs(propertyName));&#xD;&#xA;					}&#xD;&#xA;				}        &#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables />
+    <CustomProperties />
+  </Template>
+  <Template uid="f64f1397-811f-4f1e-8d0a-8ec6cfd9bc5a" shortcut="notifyp" description="INotifyPropertyChanged Property" text="#region $propertyName$ (INotifyPropertyChanged Property)&#xD;&#xA;		private $type$ _$propertyName$;&#xD;&#xA;				&#xD;&#xA;		public $type$ $propertyName$ &#xD;&#xA;		{&#xD;&#xA;			get{ return _$propertyName$;}&#xD;&#xA;			set&#xD;&#xA;			{&#xD;&#xA;		if (_$propertyName$ != null &amp;&amp; _$propertyName$.Equals(value)) return;&#xD;&#xA;		_$propertyName$ = value;&#xD;&#xA;		RaisePropertyChanged(&quot;$propertyName$&quot;);&#xD;&#xA;		&#xD;&#xA;      }&#xD;&#xA;		}&#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="propertyName" expression="" initialRange="0" />
+      <Variable name="type" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+  <Template uid="fc354c32-4315-45ca-a4a0-09fd2a0a98b7" shortcut="notifypevent" description="" text="#region $PropertyName$ (INotifyPropertyChanged Property with event)&#xD;&#xA;&#xD;&#xA;private $VALUETYPE$ _m$PropertyName$;&#xD;&#xA;public $VALUETYPE$ $PropertyName$ {&#xD;&#xA;  get { return _m$PropertyName$; }&#xD;&#xA;  set {&#xD;&#xA;    if (_m$PropertyName$ != null &amp;&amp; _m$PropertyName$.Equals(value)) return;&#xD;&#xA;    _m$PropertyName$ = value;&#xD;&#xA;	RaisePropertyChanged(&quot;$PropertyName$&quot;);&#xD;&#xA;    On$PropertyName$Changed(value);&#xD;&#xA;  }&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;public delegate $TYPE$ $PropertyName$ChangedHandler($VALUETYPE$ $PropertyName$);&#xD;&#xA;public event $PropertyName$ChangedHandler $PropertyName$Changed;&#xD;&#xA;protected $TYPE$ On$PropertyName$Changed($VALUETYPE$ $PropertyName$) {&#xD;&#xA;  if($PropertyName$Changed != null) {&#xD;&#xA;    $PropertyName$Changed($PropertyName$);&#xD;&#xA;  }&#xD;&#xA;}&#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="PropertyName" expression="" initialRange="0" />
+      <Variable name="VALUETYPE" expression="" initialRange="0" />
+      <Variable name="TYPE" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+  <Template uid="123a9d48-d2e5-4be2-80ea-ef0c421be4d0" shortcut="relaycmd" description="Relay command" text="#region RelayCommand $Name$Cmd&#xD;&#xA;  private RelayCommand _$Name$Cmd;&#xD;&#xA;  public ICommand $Name$Cmd {&#xD;&#xA;    get {&#xD;&#xA;      if (_$Name$Cmd == null) _$Name$Cmd = new RelayCommand(param =&gt; this.$DoSomething$());&#xD;&#xA;      return _$Name$Cmd;&#xD;&#xA;    }&#xD;&#xA;  }&#xD;&#xA;&#xD;&#xA;#endregion" reformat="True" shortenQualifiedReferences="True">
+    <Context>
+      <CSharpContext context="Everywhere" minimumLanguageVersion="2.0" />
+    </Context>
+    <Categories />
+    <Variables>
+      <Variable name="Name" expression="" initialRange="0" />
+      <Variable name="DoSomething" expression="" initialRange="0" />
+    </Variables>
+    <CustomProperties />
+  </Template>
+</TemplatesExport>

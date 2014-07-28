@@ -8,6 +8,13 @@
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary>
+          <ItemsPanelTemplate x:Key="ArticlePanel">
+              <StackPanel Orientation="Vertical" IsItemsHost="True" />
+          </ItemsPanelTemplate>
+          <DataTemplate DataType="{x:Type loacal:ArticlePackage}">
+            <ItemsControl Background="Transparent" ItemsSource="{Binding Path=ArticleList}" 
+                          ItemsPanel="{StaticResource ArticlePanel}" />
+          </DataTemplate>
           <DataTemplate DataType="{x:Type loacal:Article}">
             <StackPanel Background="BurlyWood" Margin="0,2" Orientation="Vertical" HorizontalAlignment="Stretch" >
               <i:Interaction.Triggers>
@@ -24,9 +31,6 @@
               <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
             </StackPanel>
           </DataTemplate>
-          <ItemsPanelTemplate x:Key="ArticlePanel">
-              <StackPanel Orientation="Vertical" IsItemsHost="True" />
-          </ItemsPanelTemplate>
         </ResourceDictionary>
         <ResourceDictionary>
           <BooleanToVisibilityConverter x:Key="B2Vc"/>
@@ -46,9 +50,16 @@
           </Style.Triggers>
         </Style>
       </ScrollViewer.Style>
-      <ItemsControl Background="Transparent" 
+      <!--<ItemsControl Background="Transparent" 
                     ItemsSource="{Binding ElementName=Root, Path=ItemScource}" 
-                    ItemsPanel="{StaticResource ArticlePanel}"/>
+                    ItemsPanel="{StaticResource ArticlePanel}"/>-->
+      <TabControl ItemsSource="{Binding ElementName=Root, Path=ArticleViewers}" Background="Transparent">
+        <TabControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding Name}" />
+          </DataTemplate>
+        </TabControl.ItemTemplate>
+      </TabControl>
     </ScrollViewer>
     <WebBrowser Visibility="{Binding ElementName=Root, Path=ShowDetail, Converter={StaticResource B2Vc}}" x:Name="Browser"/>
   </Grid>
