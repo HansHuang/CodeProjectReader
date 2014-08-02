@@ -43,7 +43,7 @@
     <Compile Include="IConnectivity.cs" />
     <Compile Include="IWebHelper.cs" />
     <Compile Include="Model\Article.cs" />
-    <Compile Include="Model\ArticlePackage.cs" />
+    <Compile Include="Model\ArticleViewModel.cs" />
     <Compile Include="Model\ArticleType.cs" />
     <Compile Include="Model\ConnectionType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

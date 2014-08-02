@@ -35,10 +35,10 @@ namespace CodeProjectReader
         #endregion
 
         #region NotifyProperty ArticleList
-        private ObservableCollection<ArticlePackage> _articlePages;
-        public ObservableCollection<ArticlePackage> ArticlePages
+        private ObservableCollection<ArticleViewModel> _articlePages;
+        public ObservableCollection<ArticleViewModel> ArticlePages
         {
-            get { return _articlePages ?? (_articlePages = new ObservableCollection<ArticlePackage>()); }
+            get { return _articlePages ?? (_articlePages = new ObservableCollection<ArticleViewModel>()); }
             set
             {
                 if (_articlePages != null && _articlePages.Equals(value)) return;
@@ -68,10 +68,10 @@ namespace CodeProjectReader
         {
             WebHelper = webHelper;
             Connectivity = connectivity;
-            ArticlePages = new ObservableCollection<ArticlePackage>();
+            ArticlePages = new ObservableCollection<ArticleViewModel>();
             for (var i = 1; i < 4; i++)
             {
-                ArticlePages.Add(new ArticlePackage((ArticleType)i));
+                ArticlePages.Add(new ArticleViewModel((ArticleType)i));
                 ArchiveMailDic.Add((ArticleType)i, new Dictionary<DateTime, string>());
                 LoadedPointer.Add((ArticleType)i, DateTime.Now.Date.AddYears(1));
             }

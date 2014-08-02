@@ -20,7 +20,7 @@ namespace CodeProjectReader
     {
         IWebHelper WebHelper { get; }
         IConnectivity Connectivity { get; }
-        ObservableCollection<ArticlePackage> ArticlePages { get; }
+        ObservableCollection<ArticleViewModel> ArticlePages { get; }
         Task<Dictionary<ArticleType,IList<Article>>> InitialArticles();
     }
 }

@@ -40,11 +40,11 @@ namespace CodeProjectReader.Viewer
             var mainPage = sender as TabbedPage;
             if (mainPage == null) return;
             //Set the status of ArticlePackage to buffering
-            foreach (ArticlePackage pkg in mainPage.ItemsSource) pkg.IsBuffering = true;
+            foreach (ArticleViewModel pkg in mainPage.ItemsSource) pkg.IsBuffering = true;
             //Initial all the article list for each type
             var articleDic = await ArticleService.InitialArticles();
 
-            foreach (ArticlePackage pkg in mainPage.ItemsSource)
+            foreach (ArticleViewModel pkg in mainPage.ItemsSource)
             {
                 pkg.IsBuffering = false;
                 if (!articleDic.ContainsKey(pkg.Type)) continue;

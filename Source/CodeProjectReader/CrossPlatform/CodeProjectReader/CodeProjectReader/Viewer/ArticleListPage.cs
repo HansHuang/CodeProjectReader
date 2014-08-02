@@ -15,7 +15,7 @@ namespace CodeProjectReader.Viewer
     /// Create On: July 27th, 2014
     /// Description: The data template for article list  
     /// Version: 0.1
-    /// Note: DataContext is Model.ArticlePackage
+    /// Note: DataContext is Model.ArticleViewModel
     /// </summary> 
     internal class ArticleListPage:ContentPage
     {
@@ -41,7 +41,7 @@ namespace CodeProjectReader.Viewer
                 Children = {busy, label}
             };
 
-            stack.SetBinding<ArticlePackage>(VisualElement.IsVisibleProperty, s => s.IsBuffering, BindingMode.OneWay);
+            stack.SetBinding<ArticleViewModel>(VisualElement.IsVisibleProperty, s => s.IsBuffering, BindingMode.OneWay);
             return stack;
         }
 
@@ -52,9 +52,12 @@ namespace CodeProjectReader.Viewer
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 ItemTemplate = new DataTemplate(typeof (ArticleCell))
             };
-            listView.SetBinding<ArticlePackage>(ListView.IsVisibleProperty, s => s.IsBuffering,
+
+            //listView.GestureRecognizers.Add();
+
+            listView.SetBinding<ArticleViewModel>(ListView.IsVisibleProperty, s => s.IsBuffering,
                 BindingMode.OneWay, new InverseBoolConverter());
-            listView.SetBinding<ArticlePackage>(ListView.ItemsSourceProperty,s=>s.ArticleList);
+            listView.SetBinding<ArticleViewModel>(ListView.ItemsSourceProperty,s=>s.ArticleList);
             return listView;
         }
 
