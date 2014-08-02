@@ -51,6 +51,36 @@ namespace CodeProjectReader.Viewer
                 Spacing = 0
             };
             View = layout;
+
+            Tapped += CellTapped;
         }
+
+        private void CellTapped(object sender, EventArgs e)
+        {
+            var page = FindAnchestor<Page>(this);
+            if (page == null) return;
+
+            var detail = new ArticleDetail(BindingContext);
+            page.Navigation.PushAsync(detail);
+        }
+
+
+        public static T FindAnchestor<T>(Element current) where T : Element
+        {
+            try
+            {
+                do
+                {
+                    if (current is T) return (T) current;
+                    current = current.Parent;
+                } while (current != null);
+            }
+            catch (Exception)
+            {
+            }
+
+            return null;
+        }
+
     }
 }

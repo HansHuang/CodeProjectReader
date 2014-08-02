@@ -7,8 +7,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CodeProjectReader.Model;
+using CodeProjectReader.WinPhone;
 using Microsoft.Phone.Net.NetworkInformation;
+using Xamarin.Forms;
 
+[assembly:Dependency(typeof(Connectivity))]
 namespace CodeProjectReader.WinPhone
 {
     public class Connectivity : IConnectivity

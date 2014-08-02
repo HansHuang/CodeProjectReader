@@ -6,9 +6,12 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CodeProjectReader;
 using CodeProjectReader.Model;
 using HtmlAgilityPack;
+using Xamarin.Forms;
 
+[assembly: Dependency(typeof(ArticleService))]
 namespace CodeProjectReader
 {
     /// <summary>
@@ -48,12 +51,21 @@ namespace CodeProjectReader
         }
         #endregion
 
-        public IWebHelper WebHelper { get; private set; }
-        public IConnectivity Connectivity { get; private set; } 
+        private IWebHelper _webHelper;
+        public IWebHelper WebHelper
+        {
+            get { return _webHelper ?? (_webHelper = DependencyService.Get<IWebHelper>()); }
+        }
+
+        private IConnectivity _connectivity;
+
+        public IConnectivity Connectivity
+        {
+            get { return _connectivity ?? (_connectivity = DependencyService.Get<IConnectivity>()); }
+        }
         #endregion
 
         #region Non-public fields
-        private readonly Random _random = new Random();
         private const string DomainUrl = "http://www.codeproject.com";
         private const string PrefixMailUrl = DomainUrl + "/script/Mailouts/View.aspx?mlid=";
         private const string BaseAchiveUrl = DomainUrl + "/script/Mailouts/Archive.aspx?mtpid={0}";
@@ -64,11 +76,15 @@ namespace CodeProjectReader
         #endregion
 
         #region Construaction
-        public ArticleService(IWebHelper webHelper, IConnectivity connectivity)
+        public ArticleService()
         {
+<<<<<<< HEAD
             WebHelper = webHelper;
             Connectivity = connectivity;
             ArticlePages = new ObservableCollection<ArticleViewModel>();
+=======
+            ArticlePages = new ObservableCollection<ArticlePackage>();
+>>>>>>> origin/master
             for (var i = 1; i < 4; i++)
             {
                 ArticlePages.Add(new ArticleViewModel((ArticleType)i));
@@ -103,8 +119,10 @@ namespace CodeProjectReader
         {
             var list = new List<Article>();
             var urlDic = await GetMailUrl(type);
-            if (string.IsNullOrWhiteSpace(urlDic.Value)) return list;
-            var html = await WebHelper.GetHtml(urlDic.Value);
+            var url = urlDic.Value;
+            if (string.IsNullOrWhiteSpace(url)) return list;
+            var html  = await WebHelper.GetHtml(url);
+            
             if (string.IsNullOrWhiteSpace(html)) return list;
             //Bulid html string to DOM
             var doc = new HtmlDocument();
@@ -173,8 +191,9 @@ namespace CodeProjectReader
                     foreach (var item in items)
                     {
                         var txtList = item.InnerText.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+
                         DateTime dt;
-                        if (!DateTime.TryParse(txtList[0], _websiteCulture, DateTimeStyles.AssumeUniversal, out dt))
+                        if (!DateTime.TryParse(txtList[0].Trim(), _websiteCulture, DateTimeStyles.AssumeLocal, out dt))
                             continue;
                         var path = GetNodesByName(item, "a")[0].GetAttributeValue("href", "");
                         if (!string.IsNullOrWhiteSpace(path))

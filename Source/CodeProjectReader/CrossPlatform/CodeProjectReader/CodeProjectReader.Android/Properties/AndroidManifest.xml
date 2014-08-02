@@ -3,4 +3,8 @@
 	<uses-sdk android:minSdkVersion="15" android:targetSdkVersion="19" />
 	<application android:label="CodeProject Reader"></application>
 	<uses-permission android:name="android.permission.INTERNET" />
+<<<<<<< HEAD
+=======
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+>>>>>>> origin/master
 </manifest>

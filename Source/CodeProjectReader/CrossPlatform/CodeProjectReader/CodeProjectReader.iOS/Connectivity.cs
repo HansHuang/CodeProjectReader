@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CodeProjectReader.iOS;
 using CodeProjectReader.Model;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using Xamarin.Forms;
 
+[assembly: Dependency(typeof(Connectivity))]
 namespace CodeProjectReader.iOS
 {
     public class Connectivity : IConnectivity

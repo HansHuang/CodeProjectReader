@@ -1,6 +1,5 @@
 using Android.App;
 using Android.OS;
-using Cirrious.MvvmCross.Droid.Views;
 
 namespace CodeProjectReader.Droid.Views
 {

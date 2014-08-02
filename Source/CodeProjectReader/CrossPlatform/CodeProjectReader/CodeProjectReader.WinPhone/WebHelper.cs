@@ -2,10 +2,14 @@
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using CodeProjectReader.WinPhone;
 using CodeProjectReader.WinPhone.Helper;
+using Xamarin.Forms;
 
+[assembly: Dependency(typeof(WebHelper))]
 namespace CodeProjectReader.WinPhone
 {
+    
     internal class WebHelper:IWebHelper
     {
         public async Task<string> GetHtml(string url)
