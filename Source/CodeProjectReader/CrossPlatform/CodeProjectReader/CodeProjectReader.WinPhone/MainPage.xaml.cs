@@ -20,9 +20,8 @@ namespace CodeProjectReader.WinPhone
             InitializeComponent();
             
             Forms.Init();
-            
-            var svc = new ArticleService(new WebHelper(),new Connectivity());
-            Content = CodeProjectReader.App.GetMainPage(svc).ConvertPageToUIElement(this);
+
+            Content = CodeProjectReader.App.GetMainPage().ConvertPageToUIElement(this);
 
             //Note: Hans comment codes from 643-650
             //I need costomize the color of systemtray

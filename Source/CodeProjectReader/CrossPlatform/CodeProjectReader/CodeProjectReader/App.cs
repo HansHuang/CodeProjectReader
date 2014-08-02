@@ -9,9 +9,9 @@ namespace CodeProjectReader
 {
     public class App
     {
-        public static Page GetMainPage(IArticleService articleService)
+        public static Page GetMainPage()
         {
-            var page = new MainPage(articleService);
+            var page = new MainPage();
             return page;
         }
     }

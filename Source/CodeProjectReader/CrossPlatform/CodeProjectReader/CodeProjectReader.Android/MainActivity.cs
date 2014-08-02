@@ -1,14 +1,15 @@
 ﻿using System;
-
 using Android.App;
 using Android.Content;
+using Android.Net;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
-
 using Xamarin.Forms.Platform.Android;
+using Xamarin.Forms;
 
+[assembly:Dependency(typeof(AndroidActivity))]
 namespace CodeProjectReader.Droid
 {
     [Activity(Label = "CodeProjectReader", MainLauncher = true)]
@@ -18,9 +19,8 @@ namespace CodeProjectReader.Droid
         {
             base.OnCreate(bundle);
 
-            Xamarin.Forms.Forms.Init(this, bundle);
-            var svc = new ArticleService(new WebHelper(),new Connectivity());
-            SetPage(App.GetMainPage(svc));
+            Forms.Init(this, bundle);
+            SetPage(App.GetMainPage());
         }
     }
 }

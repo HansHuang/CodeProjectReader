@@ -2,7 +2,10 @@
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using CodeProjectReader.iOS;
+using Xamarin.Forms;
 
+[assembly: Dependency(typeof(WebHelper))]
 namespace CodeProjectReader.iOS
 {
     internal class WebHelper:IWebHelper

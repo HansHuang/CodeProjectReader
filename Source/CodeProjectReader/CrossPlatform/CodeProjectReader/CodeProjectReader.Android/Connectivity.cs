@@ -3,41 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
 using Android.Net;
 using Android.Net.Wifi;
-using Cirrious.CrossCore;
-using Cirrious.CrossCore.Droid;
+using CodeProjectReader;
+using CodeProjectReader.Droid;
 using CodeProjectReader.Model;
 using Java.Net;
+using Xamarin.Forms;
+using Xamarin.Forms.Platform.Android;
 
+[assembly: Dependency(typeof(Connectivity))]
 namespace CodeProjectReader.Droid
 {
     public class Connectivity : IConnectivity
     {
         private ConnectivityManager _connectivityManager;
-        private WifiManager _wifiManager;
-
         protected ConnectivityManager ConnectivityManager
         {
             get
             {
-                _connectivityManager = _connectivityManager ??
-                                       (ConnectivityManager)
-                                       (Mvx.Resolve<IMvxAndroidGlobals>()
-                                           .ApplicationContext.GetSystemService(Context.ConnectivityService));
-                return _connectivityManager;
+                _connectivityManager = _connectivityManager ?? (_connectivityManager = (ConnectivityManager)
+                    Forms.Context.GetSystemService(Context.ConnectivityService));
+                return _connectivityManager ;
             }
         }
 
+        private WifiManager _wifiManager;
         protected WifiManager WifiManager
         {
             get
             {
                 _wifiManager = _wifiManager ??
-                               (WifiManager)
-                               (Mvx.Resolve<IMvxAndroidGlobals>()
-                                   .ApplicationContext.GetSystemService(Context.WifiService));
+                               (WifiManager)Forms.Context.GetSystemService(Context.WifiService);
                 return _wifiManager;
             }
         }
@@ -50,11 +49,11 @@ namespace CodeProjectReader.Droid
                 {
                     var activeConnection = ConnectivityManager.ActiveNetworkInfo;
 
-                    return ((activeConnection != null) && activeConnection.IsConnected);
+                    return (activeConnection != null) && activeConnection.IsConnected;
                 }
                 catch (Exception e)
                 {
-                    return false;
+                    return true;
                 }
             }
         }
@@ -132,5 +131,6 @@ namespace CodeProjectReader.Droid
                     yield return WifiManager.ConnectionInfo.LinkSpeed;
             }
         }
+
     }
 }

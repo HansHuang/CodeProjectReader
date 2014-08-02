@@ -2,7 +2,10 @@
 using System.Text;
 using System.Net;
 using System.Threading.Tasks;
+using CodeProjectReader.Droid;
+using Xamarin.Forms;
 
+[assembly: Dependency(typeof(WebHelper))]
 namespace CodeProjectReader.Droid
 {
     internal class WebHelper:IWebHelper
