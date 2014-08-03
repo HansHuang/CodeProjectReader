@@ -22,7 +22,7 @@ namespace CodeProjectReader.WinPhone
             Forms.Init();
 
             Content = CodeProjectReader.App.GetMainPage().ConvertPageToUIElement(this);
-
+            
             //Note: Hans comment codes from 643-650
             //I need costomize the color of systemtray
             ThemeManager.ToLightTheme();

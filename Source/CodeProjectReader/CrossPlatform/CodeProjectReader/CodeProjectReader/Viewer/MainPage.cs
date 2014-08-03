@@ -18,8 +18,7 @@ namespace CodeProjectReader.Viewer
     /// </summary> 
     internal class MainPage : TabbedPage
     {
-        protected IArticleService ArticleService;
-
+        internal static Task PrepareHtmlTask;
         private bool _hasInitial;
 
         public MainPage()
@@ -27,38 +26,49 @@ namespace CodeProjectReader.Viewer
             BackgroundImage = "bg.png";
             //BackgroundImage = "CodeProjectReader.Images.bg.png";
             //BackgroundColor = Color.Red;
-            //var assembly = typeof(MainPage).GetTypeInfo().Assembly;
-            //foreach (var res in assembly.GetManifestResourceNames())
-            //    System.Diagnostics.Debug.WriteLine("found resource: " + res);
-            NavigationPage.SetHasNavigationBar(this, true);
+            
+            //NavigationPage.SetHasNavigationBar(this, true);
             ItemTemplate = new DataTemplate(typeof (ArticleListPage));
-            ArticleService = DependencyService.Get<IArticleService>();
-            ItemsSource = ArticleService.ArticlePages;
+            ItemsSource = App.ArticleService.ArticlePages;
+            LoadCacheArticles();
+
             Appearing += PageAppearing;
+
+            PrepareHtmlTask = App.HtmlService.InittalHtml();
+        }
+
+        private async void LoadCacheArticles()
+        {
+            var dic = await App.ArticleService.LoadCacheArticles();
+            if (dic.Count == 0) return;
+
+            foreach (ArticleViewModel pkg in ItemsSource)
+            {
+                if (!dic.ContainsKey(pkg.Type)) continue;
+                foreach (var article in dic[pkg.Type])
+                    pkg.ArticleList.Add(article);
+            }
         }
 
         private async void PageAppearing(object sender, EventArgs e)
         {
             if (_hasInitial) return;
+            if (!App.Connectivity.IsConnected)
+            {
+                //TODO: No internet
+                return;
+            }
             var mainPage = sender as TabbedPage;
             if (mainPage == null) return;
             //Set the status of ArticlePackage to buffering
             foreach (ArticleViewModel pkg in mainPage.ItemsSource) pkg.IsBuffering = true;
             //Initial all the article list for each type
-            var articleDic = await ArticleService.InitialArticles();
+            var articleDic = await App.ArticleService.InitialArticles();
             //The dic is empty
             if (articleDic == null || articleDic.All(s => s.Value == null || s.Value.Count == 0))
             {
-                if (!ArticleService.Connectivity.IsConnected)
-                {
-                    //TODO: No internet
-                    return;
-                }
-                else
-                {
-                    //TODO: has internet, try again? 
-                    return;
-                }
+                //TODO: has internet but failed to get article list, try again? 
+                return;
             }
 
             foreach (ArticleViewModel pkg in mainPage.ItemsSource)
@@ -67,12 +77,10 @@ namespace CodeProjectReader.Viewer
                 if (!articleDic.ContainsKey(pkg.Type)) continue;
                 foreach (var article in articleDic[pkg.Type])
                     pkg.ArticleList.Add(article);
-
             }
             _hasInitial = true;
 
         }
-
-
+        
     }
 }

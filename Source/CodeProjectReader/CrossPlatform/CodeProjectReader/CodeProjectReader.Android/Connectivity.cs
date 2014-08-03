@@ -12,7 +12,6 @@ using CodeProjectReader.Droid;
 using CodeProjectReader.Model;
 using Java.Net;
 using Xamarin.Forms;
-using Xamarin.Forms.Platform.Android;
 
 [assembly: Dependency(typeof(Connectivity))]
 namespace CodeProjectReader.Droid

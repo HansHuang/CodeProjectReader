@@ -18,9 +18,9 @@ namespace CodeProjectReader
     /// </summary> 
     public interface IArticleService:INotifyPropertyChanged
     {
-        IWebHelper WebHelper { get; }
-        IConnectivity Connectivity { get; }
+        string BaseFolder { get; }
         ObservableCollection<ArticleViewModel> ArticlePages { get; }
-        Task<Dictionary<ArticleType,IList<Article>>> InitialArticles();
+        Task<Dictionary<ArticleType, List<Article>>> LoadCacheArticles();
+        Task<Dictionary<ArticleType,List<Article>>> InitialArticles();
     }
 }

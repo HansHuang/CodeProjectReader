@@ -35,12 +35,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="ArticleService.cs" />
+    <Compile Include="Helper\SerializationHelper.cs" />
+    <Compile Include="Service\ArticleService.cs" />
     <Compile Include="Helper\InverseBoolConverter.cs" />
     <Compile Include="Helper\InverseNullToBoolConverter .cs" />
     <Compile Include="Helper\NullToBoolConverter.cs" />
+    <Compile Include="Service\HtmlService.cs" />
     <Compile Include="IArticleService.cs" />
     <Compile Include="IConnectivity.cs" />
+    <Compile Include="IFileHelper.cs" />
+    <Compile Include="IHtmlService.cs" />
     <Compile Include="IWebHelper.cs" />
     <Compile Include="Model\Article.cs" />
     <Compile Include="Model\ArticleViewModel.cs" />
@@ -51,6 +55,7 @@
     <Compile Include="Viewer\ArticleDetail.cs" />
     <Compile Include="Viewer\ArticleListPage.cs" />
     <Compile Include="Viewer\MainPage.cs" />
+    <Compile Include="Viewer\LocalWebView.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Forms.Core">
@@ -70,7 +75,25 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="article.png" />
+    <EmbeddedResource Include="Resource\article.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resource\Html\images\download24.png" />
+    <EmbeddedResource Include="Resource\Html\images\smallarrow.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\class.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\delegate.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\Enum.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\event.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\exception.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\interface.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\literal.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\method.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\module.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\namespace.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\property.gif" />
+    <EmbeddedResource Include="Resource\Html\images\symbols\struct.gif" />
+    <EmbeddedResource Include="Resource\Html\style.css" />
+    <EmbeddedResource Include="Resource\Html\template.html" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\..\..\packages\Xamarin.Forms.1.0.6186\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.targets" Condition="Exists('..\..\..\packages\Xamarin.Forms.1.0.6186\build\portable-win+net45+wp80+MonoAndroid10+MonoTouch10\Xamarin.Forms.targets')" />

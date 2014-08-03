@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,20 +15,71 @@ namespace CodeProjectReader.Model
     /// Description: The entity model of aritcle
     /// Version: 0.1
     /// </summary> 
-    public class Article
+    [DataContract]
+    public class Article:INotifyPropertyChanged
     {
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public string Author { get; set; }
-        public string Description { get; set; }
-        public string Url { get; set; }
-        public string Category { get; set; }
+        #region INotifyPropertyChanged RaisePropertyChanged
 
-        /// <summary>
-        /// this only to mark the date of follow article
-        /// when set this property, no need to other
-        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
+
+        [DataMember]
+        public string Id { get; set; }
+        [DataMember]
+        public string Title { get; set; }
+        [DataMember]
+        public string Author { get; set; }
+        [DataMember]
+        public string Description { get; set; }
+        [DataMember]
+        public string Url { get; set; }
+        [DataMember]
+        public string Category { get; set; }
+        [DataMember]
         public DateTime Date { get; set; }
+
+        #region IsHtmlDownloaded (INotifyPropertyChanged Property)
+
+        private bool _isHtmlDownloaded;
+
+        public bool IsHtmlDownloaded
+        {
+            get { return _isHtmlDownloaded; }
+            set
+            {
+                if (_isHtmlDownloaded.Equals(value)) return;
+                _isHtmlDownloaded = value;
+                RaisePropertyChanged("IsHtmlDownloaded");
+            }
+        }
+
+        #endregion
+
+        #region IsReaded (INotifyPropertyChanged Property)
+
+        private bool _isReaded;
+
+        public bool IsReaded
+        {
+            get { return _isReaded; }
+            set
+            {
+                if (_isReaded.Equals(value)) return;
+                _isReaded = value;
+                RaisePropertyChanged("IsReaded");
+            }
+        }
+
+        #endregion
 
         public string DateString
         {

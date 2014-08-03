@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using Xamarin.Forms;
 namespace CodeProjectReader.WinPhone
 {
     
-    internal class WebHelper:IWebHelper
+    public class WebHelper:IWebHelper
     {
         public async Task<string> GetHtml(string url)
         {
@@ -24,6 +25,42 @@ namespace CodeProjectReader.WinPhone
             {
                 return null;
             }
+        }
+
+        public async Task<Stream> GetStream(string url)
+        {
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            
+            var tcs = new TaskCompletionSource<Stream>();
+            var callback = new AsyncCallback(s =>
+            {
+                var response = request.EndGetResponse(s);
+                tcs.TrySetResult(response.GetResponseStream());
+            });
+            request.BeginGetResponse(callback, request);
+
+            var stream = await tcs.Task;
+            return stream;
+        }
+
+
+        public async Task<string> GetRedirectUrl(string url)
+        {
+            var request = (HttpWebRequest)WebRequest.Create(url);
+            request.AllowAutoRedirect = false;
+
+            var tcs = new TaskCompletionSource<string>();
+            var callback = new AsyncCallback(s =>
+            {
+                var rqs = (HttpWebRequest) s.AsyncState;
+                var response = rqs.EndGetResponse(s);
+                var location = response.Headers["Location"];
+                tcs.TrySetResult(location);
+            });
+            request.BeginGetResponse(callback, request);
+
+            var realUrl =await tcs.Task;
+            return realUrl;
         }
     }
 }

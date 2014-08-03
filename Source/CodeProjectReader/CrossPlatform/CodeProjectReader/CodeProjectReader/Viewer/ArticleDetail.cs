@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using CodeProjectReader.Model;
@@ -14,23 +15,17 @@ namespace CodeProjectReader.Viewer
         {
             BindingContext = bindingContext;
 
-            //var label = new Label();
-            //label.SetBinding<Article>(Label.TextProperty, s => s.FullTitle);
-            //var source = new UrlWebViewSource();
-            //source.SetBinding<Article>(UrlWebViewSource.UrlProperty, s => s.Url);
-            //System.Diagnostics.Debug.WriteLine(((Article)bindingContext).Url);
-            
-            //var webView = new WebView { Source = source };
-            //Content = new StackLayout
-            //{
-            //    Children = { label, webView }
-            //};
-
-            var browser = new WebView();
-            browser.SetBinding<Article>(WebView.SourceProperty, s => s.Url);
-
-            Content = browser;
-            
+            //var browser = new WebView();
+            //browser.SetBinding<Article>(WebView.SourceProperty, s => s.Url);
+            //var path = App.FileHelper.AppFolder + @"\Html\template.html";
+            //var url = "file:///" + path.Replace("\\", "/");
+            //browser.Source = new UrlWebViewSource { Url = url };
+            //Content = browser;
+            var article = (Article) bindingContext;
+            var path = string.Format("{0}/{1}/index.html", App.HtmlService.BaseFolder, article.Id);
+            //var webView = new LocalWebView {FileName = "Html/template.html"};
+            var webView = new LocalWebView {FileName = path};
+            Content = webView;
         }
     }
 }

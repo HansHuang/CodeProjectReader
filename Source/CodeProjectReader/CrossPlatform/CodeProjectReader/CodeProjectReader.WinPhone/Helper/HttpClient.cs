@@ -59,7 +59,6 @@ namespace CodeProjectReader.WinPhone.Helper
                 };
 
                 DownloadStringAsync(requestUri);
-
             }
             catch (Exception ex)
             {
@@ -115,7 +114,6 @@ namespace CodeProjectReader.WinPhone.Helper
                 };
 
                 DownloadStringAsync(requestUri);
-
             }
             catch (Exception ex)
             {
