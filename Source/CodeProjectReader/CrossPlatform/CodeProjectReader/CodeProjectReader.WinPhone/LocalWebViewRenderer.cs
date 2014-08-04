@@ -15,7 +15,6 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.WinPhone;
 
 [assembly: ExportRenderer(typeof(LocalWebView), typeof(LocalWebViewRenderer))]
-
 namespace CodeProjectReader.WinPhone
 {
     public class LocalWebViewRenderer : ViewRenderer
