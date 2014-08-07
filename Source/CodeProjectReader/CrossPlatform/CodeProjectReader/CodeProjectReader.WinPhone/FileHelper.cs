@@ -51,6 +51,7 @@ namespace CodeProjectReader.WinPhone
             }
 #if DEBUG
             var files = Directory.GetFiles(Path.GetDirectoryName(file.Path));
+
             foreach (var s in files)
             {
                 System.Diagnostics.Debug.WriteLine(s);

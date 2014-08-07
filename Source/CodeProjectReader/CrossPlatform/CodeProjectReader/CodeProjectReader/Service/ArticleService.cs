@@ -60,9 +60,10 @@ namespace CodeProjectReader.Service
         private const string DomainUrl = "http://www.codeproject.com";
         private const string PrefixMailUrl = DomainUrl + "/script/Mailouts/View.aspx?mlid=";
         private const string BaseAchiveUrl = DomainUrl + "/script/Mailouts/Archive.aspx?mtpid={0}";
+        //string is the url of mailout in that day
         protected Dictionary<ArticleType, Dictionary<DateTime, string>> ArchiveMailDic =
             new Dictionary<ArticleType, Dictionary<DateTime, string>>();
-        protected Dictionary<ArticleType, DateTime> LoadedPointer = new Dictionary<ArticleType, DateTime>();
+        protected Dictionary<ArticleType, List<DateTime>> LoadedHistory = new Dictionary<ArticleType, List<DateTime>>();
         private readonly CultureInfo _websiteCulture = new CultureInfo("en-ca"); 
         #endregion
 
@@ -74,7 +75,7 @@ namespace CodeProjectReader.Service
             {
                 ArticlePages.Add(new ArticleViewModel((ArticleType)i));
                 ArchiveMailDic.Add((ArticleType)i, new Dictionary<DateTime, string>());
-                LoadedPointer.Add((ArticleType)i, DateTime.Now.Date.AddYears(1));
+                LoadedHistory.Add((ArticleType)i, new List<DateTime>());
             }
         }
         #endregion
@@ -92,16 +93,23 @@ namespace CodeProjectReader.Service
                 var json = await App.FileHelper.LoadString(BaseFolder + "\\" + Path.GetFileName(file));
                 var dic = json.DeserializeFromWcfJson<Dictionary<ArticleType, List<Article>>>();
                 if (dic == null) return result;
-                foreach (var pair in dic.Where(s => s.Value != null))
+
+                foreach (var pair in dic.Where(s => s.Value != null && s.Value.Count > 0))
                 {
+                    var thisDate = pair.Value[0].Date;
+                    var history = LoadedHistory[pair.Key];
+                    if (history.Contains(thisDate)) continue;
+
                     if (!result.ContainsKey(pair.Key))
                         result.Add(pair.Key, pair.Value);
                     else
                     {
-                        var aritlces = result[pair.Key].ToList();
-                        aritlces.AddRange(pair.Value);
-                        result[pair.Key] = aritlces;
+                        var articles = result[pair.Key].ToList();
+                        var index = articles.FindLastIndex(s => s.Date > thisDate) + 1;
+                        articles.InsertRange(index, pair.Value);
+                        result[pair.Key] = articles;
                     }
+                    history.Add(thisDate);
                 }
             }
             return result;
@@ -110,6 +118,21 @@ namespace CodeProjectReader.Service
 
         public async Task<Dictionary<ArticleType, List<Article>>> InitialArticles()
         {
+            var offset = 0;
+            switch (DateTime.Now.DayOfWeek)
+            {
+                case DayOfWeek.Saturday:
+                    offset = -1;
+                    break;
+                case DayOfWeek.Sunday:
+                    offset = -2;
+                    break;
+            }
+            //least avaliable day has already loaded from cache file
+            var leastDate = DateTime.Now.AddDays(offset).Date;
+            if (LoadedHistory.Any(s => s.Value.Contains(leastDate)))
+                return null;
+
             //Make sure Daily Builder load first
             var dailyBuilderList = await GetArticles(ArticleType.DailyBuilder);
             var webDevList = await GetArticles(ArticleType.WebDev);
@@ -150,12 +173,12 @@ namespace CodeProjectReader.Service
             if (h4List.Count == 0) return list;
             foreach (var category in h4List)
             {
-                var article = new Article(urlDic.Key, category.InnerText);
                 var ul = category.NextSibling;
-                var liList = ul.ChildNodes.Where(c => c.Name == "li");
                 //Read the content form li node
+                var liList = ul.ChildNodes.Where(c => c.Name == "li");
                 foreach (var li in liList)
                 {
+                    var article = new Article(urlDic.Key, category.InnerText);
                     var link = li.ChildNodes.FirstOrDefault(c => c.Name == "a");
                     if (link == null) continue;
                     article.Url = link.GetAttributeValue("href", "").Trim();
@@ -167,8 +190,8 @@ namespace CodeProjectReader.Service
                     var desc = li.ChildNodes.FirstOrDefault(c => c.Name == "span");
                     if (desc == null) continue;
                     article.Description = desc.InnerText.Trim();
+                    list.Add(article);
                 }
-                list.Add(article);
             }
             return list;
         }
@@ -179,9 +202,10 @@ namespace CodeProjectReader.Service
             if (ArchiveMailDic[type].Count < 1) await LoadArchive(type);
             //if still empty, something wrong...
             if (ArchiveMailDic[type].Count < 1) return empty;
-            var dateUrl = ArchiveMailDic[type].FirstOrDefault(s => s.Key < LoadedPointer[type]);
+            var history = LoadedHistory[type];
+            var dateUrl = ArchiveMailDic[type].FirstOrDefault(s => !history.Contains(s.Key));
             if (string.IsNullOrWhiteSpace(dateUrl.Value)) return empty;
-            LoadedPointer[type] = dateUrl.Key;
+            LoadedHistory[type].Add(dateUrl.Key);
             return dateUrl;
         }
 
@@ -239,6 +263,7 @@ namespace CodeProjectReader.Service
                     }
                 }
             }
+            dic = dic.OrderByDescending(s => s.Key).ToDictionary(s => s.Key.Date, s => s.Value);
             ArchiveMailDic[type] = dic;
         }
 

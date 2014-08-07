@@ -34,8 +34,15 @@ namespace CodeProjectReader.WinPhone
             var tcs = new TaskCompletionSource<Stream>();
             var callback = new AsyncCallback(s =>
             {
-                var response = request.EndGetResponse(s);
-                tcs.TrySetResult(response.GetResponseStream());
+                try
+                {
+                    var response = request.EndGetResponse(s);
+                    tcs.TrySetResult(response.GetResponseStream());
+                }
+                catch (Exception)
+                {
+                    tcs.TrySetResult(null);
+                }
             });
             request.BeginGetResponse(callback, request);
 
@@ -52,10 +59,17 @@ namespace CodeProjectReader.WinPhone
             var tcs = new TaskCompletionSource<string>();
             var callback = new AsyncCallback(s =>
             {
-                var rqs = (HttpWebRequest) s.AsyncState;
-                var response = rqs.EndGetResponse(s);
-                var location = response.Headers["Location"];
-                tcs.TrySetResult(location);
+                try
+                {
+                    var rqs = (HttpWebRequest)s.AsyncState;
+                    var response = rqs.EndGetResponse(s);
+                    var location = response.Headers["Location"];
+                    tcs.TrySetResult(location);
+                }
+                catch (Exception)
+                {
+                    tcs.TrySetResult("");
+                }
             });
             request.BeginGetResponse(callback, request);
 

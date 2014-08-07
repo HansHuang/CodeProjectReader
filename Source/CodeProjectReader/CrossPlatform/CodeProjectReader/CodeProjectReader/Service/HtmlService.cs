@@ -92,6 +92,7 @@ namespace CodeProjectReader.Service
                         if (imgUrl.StartsWith("/")) imgUrl = "http://www.codeproject.com" + imgUrl;
                         var name = string.Format("{0}.jpg", i++);
                         var stream = await App.WebHelper.GetStream(imgUrl);
+                        if (stream == null) continue;
                         await App.FileHelper.SaveToFile(imgFolder + "\\" + name, stream);
                         img.SetAttributeValue("src", "Images/" + name);
                         //TODO: Set the width/height of image ?

@@ -21,10 +21,12 @@ namespace CodeProjectReader.Viewer
     {
         public ArticleListPage()
         {
-            this.SetBinding(TitleProperty, "Name");
+            this.SetBinding<ArticleViewModel>(TitleProperty, s=>s.Name);
+            this.SetBinding<ArticleViewModel>(Page.IsBusyProperty, s => s.IsBuffering);
             //NavigationPage.SetHasNavigationBar(this, false);
             var busyIndicator = GetBusyIndicator();
             var listViewer = GetListViewer();
+            
             Content = new StackLayout
             {
                 Children = {busyIndicator, listViewer}
@@ -41,7 +43,8 @@ namespace CodeProjectReader.Viewer
                 Children = {busy, label}
             };
 
-            stack.SetBinding<ArticleViewModel>(VisualElement.IsVisibleProperty, s => s.IsBuffering, BindingMode.OneWay);
+            stack.SetBinding<ArticleViewModel>(VisualElement.IsVisibleProperty, s => s.ArticleList.Count,
+                BindingMode.OneWay, new InverseNumberToBoolConverter());
             return stack;
         }
 
@@ -55,8 +58,8 @@ namespace CodeProjectReader.Viewer
 
             //listView.GestureRecognizers.Add();
 
-            listView.SetBinding<ArticleViewModel>(ListView.IsVisibleProperty, s => s.IsBuffering,
-                BindingMode.OneWay, new InverseBoolConverter());
+            //listView.SetBinding<ArticleViewModel>(ListView.IsVisibleProperty, s => s.IsBuffering,
+            //    BindingMode.OneWay, new InverseBoolConverter());
             listView.SetBinding<ArticleViewModel>(ListView.ItemsSourceProperty,s=>s.ArticleList);
             return listView;
         }

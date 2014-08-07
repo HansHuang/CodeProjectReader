@@ -61,22 +61,21 @@ namespace CodeProjectReader.Viewer
             var mainPage = sender as TabbedPage;
             if (mainPage == null) return;
             //Set the status of ArticlePackage to buffering
-            foreach (ArticleViewModel pkg in mainPage.ItemsSource) pkg.IsBuffering = true;
+            foreach (ArticleViewModel vm in mainPage.ItemsSource) vm.IsBuffering = true;
             //Initial all the article list for each type
             var articleDic = await App.ArticleService.InitialArticles();
+            foreach (ArticleViewModel vm in mainPage.ItemsSource) vm.IsBuffering = false;
             //The dic is empty
             if (articleDic == null || articleDic.All(s => s.Value == null || s.Value.Count == 0))
             {
-                //TODO: has internet but failed to get article list, try again? 
                 return;
             }
 
-            foreach (ArticleViewModel pkg in mainPage.ItemsSource)
+            foreach (ArticleViewModel vm in mainPage.ItemsSource)
             {
-                pkg.IsBuffering = false;
-                if (!articleDic.ContainsKey(pkg.Type)) continue;
-                foreach (var article in articleDic[pkg.Type])
-                    pkg.ArticleList.Add(article);
+                if (!articleDic.ContainsKey(vm.Type)) continue;
+                foreach (var article in articleDic[vm.Type])
+                    vm.ArticleList.Add(article);
             }
             _hasInitial = true;
 
