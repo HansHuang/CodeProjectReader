@@ -15,10 +15,12 @@ body,p,h1,h2,h3,h4,h5,h6,li,tr,td,th,dd,dt {
 	font-family:"Segoe UI",Arial,Sans-Serif;
 	font-size:14px;
 	line-height:normal;
-	color:#111
+    color: #111;
 }
 body {
-	margin:0
+    margin: 0;
+    /*background:url("images/bg.png") no-repeat fixed left center ;*/
+    background: red;
 }
 h1,h3,h4,h5,th {
 	font-weight:bold
@@ -35,10 +37,10 @@ h2 {
 	margin:20px 0 11px;
 	padding:0;
 	padding-bottom:10px;
-	color:#333
+	color:#f90
 }
 h2 a {
-	color:#333
+	color:#f90
 }
 h3 {
 	color:#f90
@@ -75,14 +77,13 @@ pre {
 	color:#000;
 	background-color:#fbedbb;
 	padding:6px;
-	font:9pt Consolas,"Courier New",Courier,mono;
+	font:14px Consolas,"Courier New",Courier,mono;
 	white-space:pre;
 	overflow:auto!important;
-	border:solid 1px #fbedbb
+    border: solid 1px #fbedbb;
+    word-wrap:break-word
 }
-.ie7 PRE,.ie6 PRE {
-	word-wrap:break-word
-}
+
 code {
 	color:#900;
 	font:11pt Consolas,"Courier New",Courier,mono

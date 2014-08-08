@@ -132,6 +132,11 @@ namespace CodeProjectReader.Service
             var leastDate = DateTime.Now.AddDays(offset).Date;
             if (LoadedHistory.Any(s => s.Value.Contains(leastDate)))
                 return null;
+            //Today's update havn't published
+            await LoadArchive(ArticleType.DailyBuilder);
+            var dbArchive = ArchiveMailDic[ArticleType.DailyBuilder];
+            if (dbArchive.Count > 0 && dbArchive.Keys.Max() < leastDate)
+                return null;
 
             //Make sure Daily Builder load first
             var dailyBuilderList = await GetArticles(ArticleType.DailyBuilder);
@@ -284,7 +289,8 @@ namespace CodeProjectReader.Service
                 if (string.IsNullOrWhiteSpace(json)) return;
                 var fileName = BaseFolder + "\\" + Guid.NewGuid() + ".json";
                 App.FileHelper.SaveToFile(fileName, json);
-                App.HtmlService.DownloadHtmlData(articles.Values.SelectMany(s => s).ToList());
+
+                App.HtmlService.DownloadHtmlData(articles.SelectMany(s => s.Value).ToList());
             });
         }
 
