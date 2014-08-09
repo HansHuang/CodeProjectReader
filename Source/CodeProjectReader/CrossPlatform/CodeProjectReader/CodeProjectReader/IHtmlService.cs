@@ -20,6 +20,13 @@ namespace CodeProjectReader
         string BaseFolder { get; }
 
         /// <summary>
+        /// Get the path of web page for article
+        /// </summary>
+        /// <param name="articleId">article id</param>
+        /// <returns></returns>
+        string IndexPage(string articleId);
+
+        /// <summary>
         /// Inittal templte html file, css and images to app loacl storge
         /// </summary>
         /// <returns>Running task</returns>

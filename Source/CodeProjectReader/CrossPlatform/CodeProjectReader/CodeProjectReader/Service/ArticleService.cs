@@ -112,9 +112,9 @@ namespace CodeProjectReader.Service
                     history.Add(thisDate);
                 }
             }
+            CheckAndCacheArticles(result.SelectMany(s => s.Value).ToList());
             return result;
         }
-
 
         public async Task<Dictionary<ArticleType, List<Article>>> InitialArticles()
         {
@@ -291,6 +291,25 @@ namespace CodeProjectReader.Service
                 App.FileHelper.SaveToFile(fileName, json);
 
                 App.HtmlService.DownloadHtmlData(articles.SelectMany(s => s.Value).ToList());
+            });
+        }
+
+        private void CheckAndCacheArticles(IEnumerable<Article> articles)
+        {
+            Task.Run(() =>
+            {
+                var toCache = new List<Article>();
+                foreach (var article in articles)
+                {
+                    var path = App.HtmlService.IndexPage(article.Id);
+                    if (App.FileHelper.HasFile(path))
+                    {
+                        article.IsCached = true;
+                        continue;
+                    }
+                    toCache.Add(article);
+                }
+                App.HtmlService.DownloadHtmlData(toCache);
             });
         }
 

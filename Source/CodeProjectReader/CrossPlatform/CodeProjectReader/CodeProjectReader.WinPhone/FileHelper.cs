@@ -50,12 +50,13 @@ namespace CodeProjectReader.WinPhone
                 await stream.CopyToAsync(s);
             }
 #if DEBUG
-            var files = Directory.GetFiles(Path.GetDirectoryName(file.Path));
+            //var files = Directory.GetFiles(Path.GetDirectoryName(file.Path));
 
-            foreach (var s in files)
-            {
-                System.Diagnostics.Debug.WriteLine(s);
-            }
+            //foreach (var s in files)
+            //{
+            //    System.Diagnostics.Debug.WriteLine(s);
+            //}
+            System.Diagnostics.Debug.WriteLine(file.Path);
 #endif
         }
 

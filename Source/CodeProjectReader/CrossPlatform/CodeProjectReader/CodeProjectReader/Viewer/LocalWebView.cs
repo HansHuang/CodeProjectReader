@@ -28,5 +28,10 @@ namespace CodeProjectReader.Viewer
 
         #endregion
 
+        public LocalWebView()
+        {
+            
+        }
+
     }
 }

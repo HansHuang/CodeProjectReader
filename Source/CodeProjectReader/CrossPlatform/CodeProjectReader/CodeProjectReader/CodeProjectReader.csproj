@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="Helper\EnumerableHelper.cs" />
     <Compile Include="Helper\InverseNumberToBoolConverter.cs" />
     <Compile Include="Helper\NumberToBoolConverter.cs" />
     <Compile Include="Helper\SerializationHelper.cs" />

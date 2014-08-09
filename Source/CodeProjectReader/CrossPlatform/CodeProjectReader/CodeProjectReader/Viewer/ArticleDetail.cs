@@ -13,8 +13,10 @@ namespace CodeProjectReader.Viewer
     {
         public ArticleDetail(object bindingContext)
         {
+            BackgroundImage = "bg.png";
             BindingContext = bindingContext;
 
+            //Issur for Xamarin.Forms.WebView:  An unknown error has occurred. Error: 80004005.
             //var browser = new WebView();
             //browser.SetBinding<Article>(WebView.SourceProperty, s => s.Url);
             //var path = App.FileHelper.AppFolder + @"\Html\template.html";
@@ -22,7 +24,7 @@ namespace CodeProjectReader.Viewer
             //browser.Source = new UrlWebViewSource { Url = url };
             //Content = browser;
             var article = (Article) bindingContext;
-            var path = string.Format("{0}/{1}/index.html", App.HtmlService.BaseFolder, article.Id);
+            var path = App.HtmlService.IndexPage(article.Id);
             //var webView = new LocalWebView {FileName = "Html/template.html"};
             var webView = new LocalWebView {FileName = path};
             Content = webView;

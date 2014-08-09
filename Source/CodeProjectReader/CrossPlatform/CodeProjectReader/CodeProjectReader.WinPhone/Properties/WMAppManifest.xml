@@ -1,7 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US" />
-  <App xmlns="" ProductID="{b7e7f4ec-f32b-4d02-8aef-d0ec02abc7fe}" Title="CodeProject Reader" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="CodeProjectReader.WinPhone author" Description="Code project daily reader" Publisher="CodeProjectReader.WinPhone" PublisherID="{54e8d332-c9c8-46db-821f-9847bc05791b}">
+  <Languages xmlns="">
+    <Language code="zh" />
+    <Language code="zh-Hans" />
+    <Language code="zh-CN" />
+    <Language code="zh-SG" />
+    <Language code="zh-Hant" />
+    <Language code="zh-CHT" />
+    <Language code="zh-HK" />
+    <Language code="zh-MO" />
+    <Language code="zh-TW" />
+  </Languages>
+  <App xmlns="" ProductID="{b7e7f4ec-f32b-4d02-8aef-d0ec02abc7fe}" Title="CodeProject Reader" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="Hans Huang" Description="Code project daily reader" Publisher="CodeProjectReader" PublisherID="{54e8d332-c9c8-46db-821f-9847bc05791b}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
@@ -16,10 +27,10 @@
     <Tokens>
       <PrimaryToken TokenID="PhoneApp1Token" TaskName="_default">
         <TemplateFlip>
-          <SmallImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileSmall.png</SmallImageURI>
+          <SmallImageURI IsRelative="true" IsResource="false">Assets\Tiles\200.png</SmallImageURI>
           <Count>0</Count>
-          <BackgroundImageURI IsRelative="true" IsResource="false">Assets\Tiles\FlipCycleTileMedium.png</BackgroundImageURI>
-          <Title>CodeProjectReader.WinPhone</Title>
+          <BackgroundImageURI IsRelative="true" IsResource="false">Assets\Tiles\400.png</BackgroundImageURI>
+          <Title>CodeProject Reader</Title>
           <BackContent>
           </BackContent>
           <BackBackgroundImageURI>

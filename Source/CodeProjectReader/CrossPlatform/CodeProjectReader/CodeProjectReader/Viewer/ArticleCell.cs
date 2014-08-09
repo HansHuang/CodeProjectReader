@@ -29,6 +29,21 @@ namespace CodeProjectReader.Viewer
             };
             date.SetBinding<Article>(Label.TextProperty, s => s.DateString);
 
+            var isCached = new Label
+            {
+                XAlign = TextAlignment.End,
+                TextColor = Color.FromRgba(49, 25, 10, 160),
+                Font = Font.SystemFontOfSize(NamedSize.Small),
+                Text = "◆"
+            };
+            isCached.SetBinding<Article>(VisualElement.IsVisibleProperty, s => s.IsCached);
+            var infoBox = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                Children = {isCached, date},
+                HorizontalOptions = LayoutOptions.End
+            };
+
             var title = new Label
             {
                 LineBreakMode = LineBreakMode.WordWrap,
@@ -47,7 +62,7 @@ namespace CodeProjectReader.Viewer
             var layout = new StackLayout
             {
                 Padding = new Thickness(10, 15, 5, 15),
-                Children = {title, desc, date},
+                Children = { title, desc, infoBox },
                 Spacing = 0
             };
             View = layout;

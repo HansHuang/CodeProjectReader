@@ -47,18 +47,18 @@ namespace CodeProjectReader.Model
         [DataMember]
         public DateTime Date { get; set; }
 
-        #region IsHtmlDownloaded (INotifyPropertyChanged Property)
+        #region IsCached (INotifyPropertyChanged Property)
 
-        private bool _isHtmlDownloaded;
+        private bool _isCached;
 
-        public bool IsHtmlDownloaded
+        public bool IsCached
         {
-            get { return _isHtmlDownloaded; }
+            get { return _isCached; }
             set
             {
-                if (_isHtmlDownloaded.Equals(value)) return;
-                _isHtmlDownloaded = value;
-                RaisePropertyChanged("IsHtmlDownloaded");
+                if (_isCached.Equals(value)) return;
+                _isCached = value;
+                RaisePropertyChanged("IsCached");
             }
         }
 

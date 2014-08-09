@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using CodeProjectReader.Helper;
 using CodeProjectReader.Model;
 using CodeProjectReader.Service;
 using CodeProjectReader.Viewer;
@@ -24,6 +25,11 @@ namespace CodeProjectReader.Service
         public string BaseFolder
         {
             get { return "Html"; }
+        }
+
+        public string IndexPage(string articleId)
+        {
+            return string.Format("{0}/{1}/index.html", BaseFolder, articleId);
         }
 
         public Task InittalHtml()
@@ -57,20 +63,21 @@ namespace CodeProjectReader.Service
 
         public void DownloadHtmlData(List<Article> articles)
         {
-            if (articles == null) return;
-            var workTasks = new List<Task>();
-            var que = new Queue<Article>(articles);
-            //every 10 articles in one task
-            while (que.Count > 0)
+            if (articles == null || articles.Count < 1) return;
+            //var workTasks = new List<Task>();
+            var workList = articles.Split(15).ToList();
+            foreach (var articleList in workList)
             {
-                workTasks.Add(Task.Run(async () =>
+                var local = articleList;
+                Task.Run(async () =>
                 {
-                    for (var i = 0; i < 10; i++)
-                        if (que.Count > 0)
-                            await DownloadArticle(que.Dequeue());
-                }));
+                    foreach (var article in local)
+                    {
+                        await DownloadArticle(article);
+                    }
+                });
             }
-            Task.WaitAll(workTasks.ToArray());
+            //Task.WaitAll(workTasks.ToArray());
         }
 
 
@@ -123,16 +130,24 @@ namespace CodeProjectReader.Service
                     if (stream == null) continue;
                     var name = string.Format("{0}.jpg", i++);
                     await App.FileHelper.SaveToFile(imgFolder + "\\" + name, stream);
+                    img.Attributes.RemoveAll();
                     img.SetAttributeValue("src", "Images/" + name);
-                    //TODO: Set the width/height of image ?
+                    img.SetAttributeValue("width", "300px");
                 }
             }
-            //3. genreate the html file
+            //3. reomve the download links
+            //set the style in css
+            //var dUl = content.ChildNodes.FindFirst("ul");
+            //if (dUl.GetAttributeValue("class", "") == "download")
+            //    content.RemoveChild(dUl);
+
+            //4. genreate the html file
             if (string.IsNullOrEmpty(HtmlTemplate))
                 HtmlTemplate = await App.FileHelper.LoadString(BaseFolder + "\\template.html");
-            var newHtml = HtmlTemplate.Replace("$body$", content.OuterHtml);
+            var newHtml = HtmlTemplate.Replace("$Title$", article.Title).Replace("$Author$", article.Author)
+                .Replace("$body$", content.OuterHtml);
             await App.FileHelper.SaveToFile(folder + "\\index.html", newHtml);
-            article.IsHtmlDownloaded = true;
+            article.IsCached = true;
         }
 
         private static List<HtmlNode> GetNodesByName(HtmlNode node, string name)
