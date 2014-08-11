@@ -25,8 +25,8 @@ namespace CodeProjectReader.Viewer
             //Content = browser;
             var article = (Article) bindingContext;
             var path = App.HtmlService.IndexPage(article.Id);
-            //var webView = new LocalWebView {FileName = "Html/template.html"};
             var webView = new LocalWebView {FileName = path};
+
             Content = webView;
         }
     }

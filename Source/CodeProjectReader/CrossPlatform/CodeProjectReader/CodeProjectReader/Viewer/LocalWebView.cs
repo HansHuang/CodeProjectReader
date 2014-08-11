@@ -10,6 +10,7 @@ namespace CodeProjectReader.Viewer
 {
     public class LocalWebView : ContentView
     {
+
         #region FileName (INotifyPropertyChanged Property)
 
         private string _FileName;
@@ -28,9 +29,42 @@ namespace CodeProjectReader.Viewer
 
         #endregion
 
+        #region SwipeLeft
+
+        public delegate void SwipeLeftHandler();
+
+        public event SwipeLeftHandler SwipeLeft;
+
+        public void OnSwipeLeft()
+        {
+            if (SwipeLeft != null)
+            {
+                SwipeLeft();
+            }
+        }
+
+        #endregion
+
+        #region SwipeRight
+
+        public delegate void SwipeRightHandler();
+
+        public event SwipeRightHandler SwipeRight;
+
+        public void OnSwipeRight()
+        {
+            if (SwipeRight != null)
+            {
+                SwipeRight();
+            }
+        }
+
+        #endregion
+
         public LocalWebView()
         {
-            
+            SwipeLeft += () => System.Diagnostics.Debug.WriteLine("left.....");
+            SwipeRight += () => System.Diagnostics.Debug.WriteLine("left.....");
         }
 
     }
