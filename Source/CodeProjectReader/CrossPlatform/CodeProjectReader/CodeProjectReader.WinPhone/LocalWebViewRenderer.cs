@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using CodeProjectReader.Viewer;
 using CodeProjectReader.WinPhone;
 using Microsoft.Phone.Controls;
@@ -31,20 +32,30 @@ namespace CodeProjectReader.WinPhone
             {
                 Host = sender as LocalWebView;
                 if (Host == null || string.IsNullOrWhiteSpace(Host.FileName)) return;
-                Browser = new WebBrowser();
+                Host.Disappearing += HostDisappearing;
+                //Only opaque, solid color backgrounds are supported for the WebBrowser background
+                //var bg = new ImageBrush { ImageSource = new BitmapImage(new Uri("/bg.png", UriKind.Relative)) };
+                var bg = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 226, 198, 159));
+                Browser = new WebBrowser {Background = bg};
                 //Swipe event
                 TouchPanel.EnabledGestures = GestureType.Flick | GestureType.HorizontalDrag;
                 Touch.FrameReported += TouchFrameReported;
-                //browser.ManipulationCompleted+=BrowserManipulationCompleted;
+
                 //Broswer local web page
                 Browser.Navigate(new Uri(Host.FileName, UriKind.Relative));
                 SetNativeControl(Browser);
+            }
+            else if (e.PropertyName.Equals("FileName"))
+            {
+                if (Browser == null || Host==null || string.IsNullOrWhiteSpace(Host.FileName)) return;
+                Browser.Navigate(new Uri(Host.FileName, UriKind.Relative));
             }
         }
 
         private TouchPoint _firstPoint;
         private void TouchFrameReported(object sender, TouchFrameEventArgs e)
         {
+            if (Host == null || Browser == null) return;
             var mainTouch = e.GetPrimaryTouchPoint(Browser);
 
             if (mainTouch.Action == TouchAction.Down) _firstPoint = mainTouch;
@@ -52,25 +63,16 @@ namespace CodeProjectReader.WinPhone
             {
                 var deltaX = mainTouch.Position.X - _firstPoint.Position.X;
                 var deltaY = mainTouch.Position.Y - _firstPoint.Position.Y;
-                if (!(Math.Abs(deltaX) > 2*Math.Abs(deltaY))) return;
+                if (Math.Abs(deltaX) <= 2 * Math.Abs(deltaY)) return;
                 if (deltaX < 0) Host.OnSwipeRight();
                 if (deltaX > 0) Host.OnSwipeLeft();
             }
         }
 
-        private void BrowserManipulationCompleted(object sender, ManipulationCompletedEventArgs e)
+        private void HostDisappearing()
         {
-            if (Host == null || !TouchPanel.IsGestureAvailable) return;
-            var gesture = TouchPanel.ReadGesture();
-            switch (gesture.GestureType)
-            {
-                case GestureType.Flick:
-                    if (e.FinalVelocities.LinearVelocity.X < 0)
-                        Host.OnSwipeLeft();
-                    if (e.FinalVelocities.LinearVelocity.X > 0)
-                        Host.OnSwipeRight();
-                    break;
-            }
+            Touch.FrameReported -= TouchFrameReported;
         }
+
     }
 }

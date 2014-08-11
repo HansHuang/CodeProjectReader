@@ -22,5 +22,6 @@ namespace CodeProjectReader
         ObservableCollection<ArticleViewModel> ArticlePages { get; }
         Task<Dictionary<ArticleType, List<Article>>> LoadCacheArticles();
         Task<Dictionary<ArticleType,List<Article>>> InitialArticles();
+        Task<List<Article>> LoadNextDayArticles(ArticleType type);
     }
 }

@@ -26,7 +26,7 @@ namespace CodeProjectReader.Viewer
             //NavigationPage.SetHasNavigationBar(this, false);
             var busyIndicator = GetBusyIndicator();
             var listViewer = GetListViewer();
-            
+
             Content = new StackLayout
             {
                 Children = {busyIndicator, listViewer}
@@ -55,6 +55,8 @@ namespace CodeProjectReader.Viewer
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 ItemTemplate = new DataTemplate(typeof (ArticleCell))
             };
+
+            
 
             //listView.GestureRecognizers.Add();
 

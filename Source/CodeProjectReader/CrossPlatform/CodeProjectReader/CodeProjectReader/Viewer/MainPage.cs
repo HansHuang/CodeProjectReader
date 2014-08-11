@@ -68,6 +68,13 @@ namespace CodeProjectReader.Viewer
             //The dic is empty
             if (articleDic == null || articleDic.All(s => s.Value == null || s.Value.Count == 0))
             {
+                foreach (ArticleViewModel vm in mainPage.ItemsSource)
+                {
+                    if (vm.ArticleList.Count > 0) continue;
+                    var list =await App.ArticleService.LoadNextDayArticles(vm.Type);
+                    if (list == null) continue;
+                    foreach (var item in list) vm.ArticleList.Add(item);
+                }
                 return;
             }
 

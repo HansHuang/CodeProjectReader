@@ -154,6 +154,19 @@ namespace CodeProjectReader.Service
             return dic;
         }
 
+        public async Task<List<Article>> LoadNextDayArticles(ArticleType type)
+        {
+            var list = await GetArticles(type);
+
+            if (list.Count > 0)
+            {
+                var dic = new Dictionary<ArticleType, List<Article>> { { type, list } };
+                SaveArticlesToFile(dic);
+            }
+
+            return list;
+        }
+
         #endregion
 
         #region Private processor
@@ -198,6 +211,7 @@ namespace CodeProjectReader.Service
                     list.Add(article);
                 }
             }
+            LoadedHistory[type].Add(urlDic.Key);
             return list;
         }
 
@@ -209,8 +223,6 @@ namespace CodeProjectReader.Service
             if (ArchiveMailDic[type].Count < 1) return empty;
             var history = LoadedHistory[type];
             var dateUrl = ArchiveMailDic[type].FirstOrDefault(s => !history.Contains(s.Key));
-            if (string.IsNullOrWhiteSpace(dateUrl.Value)) return empty;
-            LoadedHistory[type].Add(dateUrl.Key);
             return dateUrl;
         }
 
@@ -280,6 +292,7 @@ namespace CodeProjectReader.Service
                 nodeList.AddRange(GetNodesByName(nd, name));
             return nodeList;
         }
+
 
         private void SaveArticlesToFile(Dictionary<ArticleType, List<Article>> articles)
         {

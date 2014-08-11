@@ -23,7 +23,6 @@ body, p, h1, h2, h3, h4, h5, h6, li, tr, td, th, dd, dt {
 
 body {
     margin: 0;
-    padding: 1% 3%;
     background: url("images/bg.png") repeat-y fixed #e2c69f;
     -ms-background-size: contain;
     background-size: contain;
